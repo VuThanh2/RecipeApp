@@ -1,7 +1,7 @@
-package com.example.recipeapp;
+package RecipeManager;
 
 import android.content.Context;
-import android.util.Log;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -11,7 +11,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 
-public class FileHelper {
+public class RecipeDataManager {
     private static final String RECIPES_FILE_NAME = "recipes.json";
 
     public static void CreateJsonFileIfEmpty(Context context) {

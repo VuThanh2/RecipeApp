@@ -1,4 +1,4 @@
-package com.example.recipeapp;
+package RecipeManager;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,6 +7,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.recipeapp.R;
+
 import java.util.List;
 
 public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.ViewHolder> {
@@ -36,8 +39,8 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.ViewHolder
         holder.tvTitle.setText(recipe.getTitle());
         holder.tvCategory.setText(recipe.getCategory());
 
-        if (recipe.getImageResId() != 0) {
-            holder.ivRecipeImage.setImageResource(recipe.getImageResId());
+        if (recipe.getImage() != 0) {
+            holder.ivRecipeImage.setImageResource(recipe.getImage());
         } else {
             holder.ivRecipeImage.setImageResource(R.drawable.default_background);
         }

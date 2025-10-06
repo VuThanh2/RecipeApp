@@ -1,25 +1,32 @@
-package com.example.recipeapp;
+package RecipeManager;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
+import com.example.recipeapp.R;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class RecipeFormFragment extends Fragment {
-    private EditText etTitle, etCategory, etIngredients, etInstructions;
+    private EditText etTitle, etIngredients, etInstructions;
+    private AutoCompleteTextView etCategory;
     private Button btnSave;
     private ImageView ivRecipeImage;
     private Recipe recipe;
-    private int selectedImageResId = R.drawable.default_background;
+    private int selectedImage = R.drawable.default_background;
     private boolean isPinned = false;
     private ImageView btnPin;
 
@@ -46,19 +53,32 @@ public class RecipeFormFragment extends Fragment {
         ivRecipeImage = view.findViewById(R.id.ivRecipeImage);
         btnPin = view.findViewById(R.id.btnPin);
 
-        if (getArguments() != null) {
-            recipe = (Recipe) getArguments().getSerializable("recipe");
-            if (recipe != null) {
-                etTitle.setText(recipe.getTitle());
-                etCategory.setText(recipe.getCategory());
-                etIngredients.setText(recipe.getIngredients());
-                etInstructions.setText(recipe.getInstructions());
-                selectedImageResId = recipe.getImageResId();
-                ivRecipeImage.setImageResource(selectedImageResId);
-                isPinned = recipe.isPinned();
-                updatePinIcon();
+        String[] categories = {"Breakfast", "Lunch", "Dinner", "Vegetarian", "Dessert"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
+                android.R.layout.simple_dropdown_item_1line,categories);
+        etCategory.setAdapter(adapter);
+        etCategory.setThreshold(0);
+        etCategory.setKeyListener(null);
+
+        LoadRecipeFromDetail();
+
+        etCategory.setOnClickListener(v -> {
+            if (!etCategory.isPopupShowing()) {
+                String previousText = etCategory.getText().toString();
+                etCategory.setTag(previousText);
+                etCategory.setText("");
+                etCategory.showDropDown();
             }
-        }
+        });
+
+        etCategory.setOnFocusChangeListener((v, hasFocus) -> {
+            if (!hasFocus) {
+                String previousText = (String) etCategory.getTag();
+                if (etCategory.getText().toString().isEmpty() && previousText != null) {
+                    etCategory.setText(previousText);
+                }
+            }
+        });
 
         btnPin.setOnClickListener(v -> {
             isPinned = !isPinned;
@@ -75,29 +95,31 @@ public class RecipeFormFragment extends Fragment {
                 recipeObj.put("category", etCategory.getText().toString());
                 recipeObj.put("ingredients", etIngredients.getText().toString());
                 recipeObj.put("instructions", etInstructions.getText().toString());
-                recipeObj.put("imageResId", selectedImageResId);
+                recipeObj.put("imageResId", selectedImage);
                 recipeObj.put("pinned", isPinned);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
 
             if (editingIndex >= 0) {
-                FileHelper.updateRecipe(getContext(), editingIndex, recipeObj);
+                RecipeDataManager.updateRecipe(getContext(), editingIndex, recipeObj);
             } else {
-                FileHelper.addRecipe(getContext(), recipeObj);
+                RecipeDataManager.addRecipe(getContext(), recipeObj);
             }
 
             getParentFragmentManager().popBackStack(null, getParentFragmentManager().POP_BACK_STACK_INCLUSIVE);
-            getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, new RecipeListFragment()).commit();
+            getParentFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, new RecipeListFragment())
+                    .commit();
         });
         return view;
     }
 
     private void updatePinIcon() {
         if (isPinned) {
-            btnPin.setImageResource(R.drawable.ic_heart_filled); // filled heart
+            btnPin.setImageResource(R.drawable.ic_heart_filled);
         } else {
-            btnPin.setImageResource(R.drawable.ic_heart); // empty heart
+            btnPin.setImageResource(R.drawable.ic_heart);
         }
     }
 
@@ -113,10 +135,25 @@ public class RecipeFormFragment extends Fragment {
         new AlertDialog.Builder(getContext())
                 .setTitle("Select an image")
                 .setItems(imageNames, (dialog, which) -> {
-                    selectedImageResId = imageResIds[which];
-                    ivRecipeImage.setImageResource(selectedImageResId);
+                    selectedImage = imageResIds[which];
+                    ivRecipeImage.setImageResource(selectedImage);
                 })
                 .show();
     }
-}
 
+    private void LoadRecipeFromDetail() {
+        if (getArguments() != null) {
+            recipe = (Recipe) getArguments().getSerializable("recipe");
+            if (recipe != null) {
+                etTitle.setText(recipe.getTitle());
+                etCategory.setText(recipe.getCategory());
+                etIngredients.setText(recipe.getIngredients());
+                etInstructions.setText(recipe.getInstructions());
+                selectedImage = recipe.getImage();
+                ivRecipeImage.setImageResource(selectedImage);
+                isPinned = recipe.isPinned();
+                updatePinIcon();
+            }
+        }
+    }
+}

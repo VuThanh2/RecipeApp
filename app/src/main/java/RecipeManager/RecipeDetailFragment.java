@@ -1,4 +1,4 @@
-package com.example.recipeapp;
+package RecipeManager;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -10,6 +10,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
+import com.example.recipeapp.R;
 
 public class RecipeDetailFragment extends Fragment {
     private Recipe recipe;
@@ -41,18 +43,7 @@ public class RecipeDetailFragment extends Fragment {
         btnEdit = view.findViewById(R.id.btnEdit);
         btnDelete = view.findViewById(R.id.btnDelete);
 
-        if (getArguments() != null) {
-            recipe = (Recipe) getArguments().getSerializable("recipe");
-            recipeIndex = getArguments().getInt("index", -1);
-
-            if (recipe != null) {
-                tvTitle.setText(recipe.getTitle());
-                tvCategory.setText(recipe.getCategory());
-                tvIngredients.setText(recipe.getIngredients());
-                tvInstructions.setText(recipe.getInstructions());
-                ivRecipeImage.setImageResource(recipe.getImageResId());
-            }
-        }
+        LoadSavedRecipe();
 
         btnEdit.setOnClickListener(v -> {
             RecipeFormFragment formFragment = RecipeFormFragment.newInstance(recipe, recipeIndex);
@@ -63,11 +54,26 @@ public class RecipeDetailFragment extends Fragment {
         });
 
         btnDelete.setOnClickListener(v -> {
-            FileHelper.deleteRecipe(requireContext(), recipeIndex);
+            RecipeDataManager.deleteRecipe(requireContext(), recipeIndex);
             getParentFragmentManager().popBackStack(); // Go back to list
         });
 
         return view;
+    }
+
+    private void LoadSavedRecipe() {
+        if (getArguments() != null) {
+            recipe = (Recipe) getArguments().getSerializable("recipe");
+            recipeIndex = getArguments().getInt("index", -1);
+
+            if (recipe != null) {
+                tvTitle.setText(recipe.getTitle());
+                tvCategory.setText(recipe.getCategory());
+                tvIngredients.setText(recipe.getIngredients());
+                tvInstructions.setText(recipe.getInstructions());
+                ivRecipeImage.setImageResource(recipe.getImage());
+            }
+        }
     }
 }
 

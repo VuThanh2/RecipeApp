@@ -1,4 +1,4 @@
-package com.example.recipeapp;
+package RecipeManager;
 
 import java.io.Serializable;
 
@@ -28,7 +28,7 @@ public class Recipe implements Serializable {
     public void setIngredients(String ingredients) { this.ingredients = ingredients; }
     public String getInstructions() { return instructions; }
     public void setInstructions(String instructions) { this.instructions = instructions; }
-    public int getImageResId() { return imageResId; }
+    public int getImage() { return imageResId; }
     public void setImageResId(int imageResId) { this.imageResId = imageResId; }
     public boolean isPinned() { return pinned; }
     public void setPinned(boolean pinned) { this.pinned = pinned; }

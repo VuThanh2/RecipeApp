@@ -1,4 +1,4 @@
-package com.example.recipeapp;
+package RecipeManager;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -9,6 +9,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.recipeapp.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -48,7 +50,7 @@ public class RecipeListFragment extends Fragment {
         rvUnpinned = view.findViewById(R.id.rvUnpinned);
         fab = view.findViewById(R.id.fab_add);
 
-        FileHelper.CreateJsonFileIfEmpty(getContext());
+        RecipeDataManager.CreateJsonFileIfEmpty(getContext());
         loadRecipesFromFile();
 
         adapterPinned = new RecipeAdapter(pinnedList, (recipe, pos) ->
@@ -76,7 +78,7 @@ public class RecipeListFragment extends Fragment {
     private void loadRecipesFromFile() {
         pinnedList.clear();
         unpinnedList.clear();
-        JSONArray array = FileHelper.loadRecipes(getContext());
+        JSONArray array = RecipeDataManager.loadRecipes(getContext());
 
         for (int i = 0; i < array.length(); i++) {
             try {

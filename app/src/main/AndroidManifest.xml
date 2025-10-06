@@ -11,8 +11,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.RecipeApp">
+
         <activity
-            android:name=".RecipeManagerActivity"
+            android:name="Login.LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -20,6 +21,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name="Login.RegisterActivity" android:exported="false" />
+        <activity android:name="Login.ForgotPasswordActivity" android:exported="false" />
+        <activity android:name="Login.UserProfileActivity" android:exported="false" />
+        <activity android:name="RecipeManager.RecipeManagerActivity" android:exported="false" />
     </application>
 
 </manifest>

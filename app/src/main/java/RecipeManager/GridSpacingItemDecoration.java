@@ -1,4 +1,4 @@
-package com.example.recipeapp;
+package RecipeManager;
 
 import android.graphics.Rect;
 import android.view.View;

@@ -1,12 +1,10 @@
-package com.example.recipeapp;
+package RecipeManager;
 
 import android.os.Bundle;
-import androidx.activity.EdgeToEdge;
+
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.annotation.Nullable;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+
+import com.example.recipeapp.R;
 
 public class RecipeManagerActivity extends AppCompatActivity implements RecipeListFragment.OnRecipeSelectedListener {
     @Override
