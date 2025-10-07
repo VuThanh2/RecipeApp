@@ -21,8 +21,8 @@ import androidx.recyclerview.widget.GridLayoutManager;
 public class RecipeListFragment extends Fragment {
     private RecyclerView rvPinned, rvUnpinned;
     private RecipeAdapter adapterPinned, adapterUnpinned;
-    private List<Recipe> pinnedList = new ArrayList<>();
-    private List<Recipe> unpinnedList = new ArrayList<>();
+    private final List<Recipe> pinnedList = new ArrayList<>();
+    private final List<Recipe> unpinnedList = new ArrayList<>();
     private FloatingActionButton fab;
     private OnRecipeSelectedListener listener;
 

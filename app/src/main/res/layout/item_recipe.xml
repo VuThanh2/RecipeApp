@@ -12,7 +12,6 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Recipe image -->
         <ImageView
             android:id="@+id/ivRecipeImage"
             android:layout_width="match_parent"
@@ -22,7 +21,6 @@
             android:src="@drawable/default_background"
             android:contentDescription="Recipe image"/>
 
-        <!-- Text content -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

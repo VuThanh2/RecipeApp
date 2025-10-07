@@ -29,7 +29,7 @@ public class Recipe implements Serializable {
     public String getInstructions() { return instructions; }
     public void setInstructions(String instructions) { this.instructions = instructions; }
     public int getImage() { return imageResId; }
-    public void setImageResId(int imageResId) { this.imageResId = imageResId; }
+    public void setImage(int imageResId) { this.imageResId = imageResId; }
     public boolean isPinned() { return pinned; }
     public void setPinned(boolean pinned) { this.pinned = pinned; }
     public int getGlobalIndex() { return globalIndex; }
