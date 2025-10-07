@@ -27,5 +27,7 @@
         <activity android:name="Login.UserProfileActivity" android:exported="false" />
         <activity android:name="RecipeManager.RecipeManagerActivity" android:exported="false" />
     </application>
-
+<!--    <application ...>-->
+<!--    <activity android:name="meal.WeeklyPlannerActivity"/>-->
+<!--</application>-->
 </manifest>
