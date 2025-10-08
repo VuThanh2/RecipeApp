@@ -8,6 +8,8 @@
         android:layout_height="wrap_content" android:hint="Search recipe"/>
 
     <ListView
-        android:id="@+id/listRecipes" android:layout_width="match_parent"
-        android:layout_height="300dp" android:dividerHeight="1dp"/>
+        android:id="@+id/listRecipes"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:dividerHeight="1dp" />
 </LinearLayout>
