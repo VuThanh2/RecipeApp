@@ -5,18 +5,18 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.recipeapp.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import org.json.JSONArray;
-import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
-import androidx.recyclerview.widget.GridLayoutManager;
 
 public class RecipeListFragment extends Fragment {
     private RecyclerView rvPinned, rvUnpinned;
@@ -36,8 +36,9 @@ public class RecipeListFragment extends Fragment {
         }
     }
 
+    // Giữ nguyên chữ ký để không phá chỗ khác.
     public interface OnRecipeSelectedListener {
-        void onRecipeSelected(Recipe recipe, int index);
+        void onRecipeSelected(Recipe recipe, int index /*deprecated: luôn -1*/);
     }
 
     @Nullable
@@ -50,70 +51,58 @@ public class RecipeListFragment extends Fragment {
         rvUnpinned = view.findViewById(R.id.rvUnpinned);
         fab = view.findViewById(R.id.fab_add);
 
-        RecipeDataManager.createJsonFileIfEmpty(getContext());
-        loadRecipesFromFile();
+        // Vẫn dùng helper hiện có để đảm bảo file tồn tại
+        RecipeDataManager.createJsonFileIfEmpty(requireContext());
 
-        adapterPinned = new RecipeAdapter(pinnedList, (recipe, pos) ->
-                listener.onRecipeSelected(recipe, recipe.getGlobalIndex()));
-        rvPinned.setLayoutManager(new GridLayoutManager(getContext(), 2));
-        rvPinned.setAdapter(adapterPinned);
-        rvPinned.setNestedScrollingEnabled(false);
-
-        adapterUnpinned = new RecipeAdapter(unpinnedList, (recipe, pos) ->
-                listener.onRecipeSelected(recipe, recipe.getGlobalIndex()));
-        rvUnpinned.setLayoutManager(new GridLayoutManager(getContext(), 2));
-        rvUnpinned.setAdapter(adapterUnpinned);
-        rvUnpinned.setNestedScrollingEnabled(false);
+        setupAdapters();
+        reloadData();
 
         fab.setOnClickListener(v -> {
-            RecipeFormFragment formFragment = RecipeFormFragment.newInstance(null, -1);
+            // Tạo mới
+            RecipeFormFragment formFragment = RecipeFormFragment.newInstance(null);
             getParentFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, formFragment)
                     .addToBackStack(null)
                     .commit();
         });
+
         return view;
     }
 
-    private void loadRecipesFromFile() {
+    private void setupAdapters() {
+        adapterPinned = new RecipeAdapter(pinnedList, (recipe, pos) -> {
+            if (listener != null) listener.onRecipeSelected(recipe, -1);
+        });
+        rvPinned.setLayoutManager(new GridLayoutManager(getContext(), 2));
+        rvPinned.setAdapter(adapterPinned);
+        rvPinned.setNestedScrollingEnabled(false);
+
+        adapterUnpinned = new RecipeAdapter(unpinnedList, (recipe, pos) -> {
+            if (listener != null) listener.onRecipeSelected(recipe, -1);
+        });
+        rvUnpinned.setLayoutManager(new GridLayoutManager(getContext(), 2));
+        rvUnpinned.setAdapter(adapterUnpinned);
+        rvUnpinned.setNestedScrollingEnabled(false);
+    }
+
+    private void reloadData() {
         pinnedList.clear();
         unpinnedList.clear();
-        JSONArray array = RecipeDataManager.loadRecipes(getContext());
 
-        for (int i = 0; i < array.length(); i++) {
-            try {
-                JSONObject obj = array.getJSONObject(i);
-                Recipe recipe = new Recipe(
-                        obj.getString("id"),
-                        obj.getString("title"),
-                        obj.getString("category"),
-                        obj.getString("ingredients"),
-                        obj.getString("instructions"),
-                        obj.optInt("imageResId", 0)
-                );
-                recipe.setPinned(obj.optBoolean("pinned", false));
-                recipe.setGlobalIndex(i); // ← ADD THIS LINE - Store the real JSON index
-
-                if (recipe.isPinned()) pinnedList.add(recipe);
-                else unpinnedList.add(recipe);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        // ✅ Dùng API mới dạng domain objects
+        List<Recipe> all = RecipeDataManager.loadAll(requireContext());
+        for (Recipe r : all) {
+            if (r.isPinned()) pinnedList.add(r);
+            else unpinnedList.add(r);
         }
+
+        if (adapterPinned != null) adapterPinned.notifyDataSetChanged();
+        if (adapterUnpinned != null) adapterUnpinned.notifyDataSetChanged();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        loadRecipesFromFile();
-        if (adapterPinned != null) {
-            adapterPinned.notifyDataSetChanged();
-        }
-        if (adapterUnpinned != null) {
-            adapterUnpinned.notifyDataSetChanged();
-        }
+        reloadData();
     }
 }
-
-
-
