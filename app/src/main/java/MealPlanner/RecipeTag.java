@@ -1,4 +1,4 @@
-package meal;
+package MealPlanner;
 
 public class RecipeTag {
     public String id;

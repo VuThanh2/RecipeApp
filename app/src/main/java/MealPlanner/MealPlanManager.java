@@ -1,7 +1,6 @@
-package meal;
+package MealPlanner;
 
 import android.content.Context;
-import android.util.Base64;
 
 import org.json.*;
 
@@ -161,4 +160,36 @@ public class MealPlanManager {
             return removed;
         } catch (Exception e) { return false; }
     }
+    // Temporary: dummy test data
+    public static Map<Day, List<RecipeTag>> getDummyWeek() {
+        Map<Day, List<RecipeTag>> map = new HashMap<>();
+
+        map.put(Day.MON, Arrays.asList(
+                new RecipeTag("r1", "Pho"),
+                new RecipeTag("r2", "Spring Rolls")
+        ));
+        map.put(Day.TUE, Arrays.asList(
+                new RecipeTag("r3", "Banh Mi")
+        ));
+        map.put(Day.WED, Arrays.asList(
+                new RecipeTag("r4", "Fried Rice"),
+                new RecipeTag("r5", "Salad")
+        ));
+        map.put(Day.THU, Collections.singletonList(
+                new RecipeTag("r6", "Bun Cha")
+        ));
+        map.put(Day.FRI, Arrays.asList(
+                new RecipeTag("r7", "Grilled Chicken"),
+                new RecipeTag("r8", "Sushi")
+        ));
+        map.put(Day.SAT, Arrays.asList(
+                new RecipeTag("r9", "Pancakes")
+        ));
+        map.put(Day.SUN, Arrays.asList(
+                new RecipeTag("r10", "Steak")
+        ));
+
+        return map;
+    }
+
 }

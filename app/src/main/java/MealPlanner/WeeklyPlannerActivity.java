@@ -1,4 +1,4 @@
-package meal;
+package MealPlanner;
 
 import android.os.Bundle;
 import android.widget.ImageButton;
@@ -7,6 +7,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
+import com.example.recipeapp.R;
 
 public class WeeklyPlannerActivity extends AppCompatActivity implements WeeklyAdapter.Listener {
 

@@ -1,6 +1,5 @@
-package meal;
+package MealPlanner;
 
-import android.app.Dialog;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -10,6 +9,7 @@ import android.widget.ListView;
 import android.widget.ArrayAdapter;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import com.example.recipeapp.R;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
