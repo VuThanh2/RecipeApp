@@ -22,6 +22,7 @@
             </intent-filter>
         </activity>
 
+
         <activity android:name="Login.RegisterActivity" android:exported="false" />
         <activity android:name="Login.ForgotPasswordActivity" android:exported="false" />
         <activity android:name="Login.UserProfileActivity" android:exported="false" />

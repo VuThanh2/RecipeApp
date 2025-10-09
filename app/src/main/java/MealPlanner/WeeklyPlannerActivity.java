@@ -26,6 +26,7 @@ public class WeeklyPlannerActivity extends AppCompatActivity implements WeeklyAd
 
         weekId = MealPlanManager.currentWeekId();
         tvWeek.setText(weekId);
+        rv.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(this)); // <-- thêm dòng này
 
         adapter = new WeeklyAdapter(this, weekId, this);
         rv.setAdapter(adapter);

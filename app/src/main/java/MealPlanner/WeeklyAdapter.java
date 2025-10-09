@@ -33,9 +33,9 @@ public class WeeklyAdapter extends RecyclerView.Adapter<WeeklyAdapter.DayVH> {
 
     public void setWeekId(String weekId) { this.weekId = weekId; reload(); notifyDataSetChanged(); }
     public void reload() {
-        //data = MealPlanManager.getWeek(ctx, weekId);
-        data = MealPlanManager.getDummyWeek();
+        data = MealPlanManager.getWeek(ctx, weekId);
     }
+
 
     @NonNull @Override public DayVH onCreateViewHolder(@NonNull ViewGroup p, int v) {
         View view = LayoutInflater.from(p.getContext()).inflate(R.layout.item_day_row, p, false);
