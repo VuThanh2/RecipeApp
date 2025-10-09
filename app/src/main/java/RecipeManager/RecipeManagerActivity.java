@@ -14,6 +14,7 @@ import com.google.android.material.navigation.NavigationView;
 import java.util.Objects;
 import Login.LoginActivity;
 import Login.UserProfileActivity;
+import MealPlanner.WeeklyPlannerActivity;
 
 public class RecipeManagerActivity extends AppCompatActivity implements RecipeListFragment.OnRecipeSelectedListener {
     private DrawerLayout drawerLayout;
@@ -64,6 +65,8 @@ public class RecipeManagerActivity extends AppCompatActivity implements RecipeLi
             } else if (id == R.id.nav_logout) {
                 Toast.makeText(this, "Logged out", Toast.LENGTH_SHORT).show();
                 PassDataToActivity(LoginActivity.class, 4);
+            } else if (id == R.id.nav_planner) {
+                PassDataToActivity(WeeklyPlannerActivity.class, 1);
             }
 
             drawerLayout.closeDrawers();

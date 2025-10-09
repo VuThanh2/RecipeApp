@@ -1,4 +1,4 @@
-package meal;
+package MealPlanner;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import java.util.*;
+import com.example.recipeapp.R;
 
 public class WeeklyAdapter extends RecyclerView.Adapter<WeeklyAdapter.DayVH> {
 
@@ -31,7 +32,10 @@ public class WeeklyAdapter extends RecyclerView.Adapter<WeeklyAdapter.DayVH> {
     }
 
     public void setWeekId(String weekId) { this.weekId = weekId; reload(); notifyDataSetChanged(); }
-    public void reload() { data = MealPlanManager.getWeek(ctx, weekId); }
+    public void reload() {
+        //data = MealPlanManager.getWeek(ctx, weekId);
+        data = MealPlanManager.getDummyWeek();
+    }
 
     @NonNull @Override public DayVH onCreateViewHolder(@NonNull ViewGroup p, int v) {
         View view = LayoutInflater.from(p.getContext()).inflate(R.layout.item_day_row, p, false);
