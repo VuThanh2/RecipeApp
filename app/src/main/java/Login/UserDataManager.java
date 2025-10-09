@@ -78,19 +78,21 @@ public class UserDataManager {
         return false;
     }
 
-    public static String getPasswordByUsername(Context context, String username) {
+    public static boolean updatePassword(Context context, String username, String newPassword) {
         JSONArray users = loadUsers(context);
         for (int i = 0; i < users.length(); i++) {
             try {
                 JSONObject user = users.getJSONObject(i);
                 if (user.getString("username").equals(username)) {
-                    return user.getString("password");
+                    user.put("password", newPassword);
+                    saveUsers(context, users);
+                    return true;
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
-        return null;
+        return false;
     }
 
     public static String getFoodPreference(Context context, String username) {
