@@ -8,6 +8,9 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.recipeapp.R;
+import RecipeManager.Recipe;
+import RecipeManager.RecipeDataManager;
+
 
 public class WeeklyPlannerActivity extends AppCompatActivity implements WeeklyAdapter.Listener {
 

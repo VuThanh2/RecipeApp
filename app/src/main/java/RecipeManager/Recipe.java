@@ -10,6 +10,8 @@ public class Recipe implements Serializable {
     private int imageResId;
     private boolean pinned;
     private int globalIndex = -1;
+    private String id;
+    private int calories;      // nếu có
 
     public Recipe(String title, String category, String ingredients, String instructions, int imageResId) {
         this.title = title;
@@ -19,6 +21,7 @@ public class Recipe implements Serializable {
         this.imageResId = imageResId;
         this.pinned = false;
     }
+
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }

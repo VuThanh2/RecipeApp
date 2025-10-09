@@ -24,7 +24,7 @@ public class WeeklyAdapter extends RecyclerView.Adapter<WeeklyAdapter.DayVH> {
     private final Listener listener;
     private String weekId;
     private final Day[] days = Day.values();
-    private Map<Day, List<RecipeTag>> data = new HashMap<>();
+    private Map<Day, List<RecipeTagDto>> data = new HashMap<>();
 
     public WeeklyAdapter(Context ctx, String weekId, Listener listener) {
         this.ctx = ctx; this.weekId = weekId; this.listener = listener;
@@ -46,8 +46,8 @@ public class WeeklyAdapter extends RecyclerView.Adapter<WeeklyAdapter.DayVH> {
         Day d = days[pos];
         h.dayLabel.setText(d.name().substring(0,1)); // S/M/T...
         h.chips.removeAllViews();
-        List<RecipeTag> tags = data.get(d);
-        if (tags != null) for (RecipeTag t: tags) {
+        List<RecipeTagDto> tags = data.get(d);
+        if (tags != null) for (RecipeTagDto t: tags) {
             Chip c = (Chip) LayoutInflater.from(ctx).inflate(R.layout.part_chip, h.chips, false);
             c.setText(t.title);
             c.setOnLongClickListener(v -> { listener.onRemoveTag(d, t.id, t.title); return true; });

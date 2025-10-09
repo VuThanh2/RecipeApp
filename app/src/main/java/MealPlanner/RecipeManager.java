@@ -6,15 +6,15 @@ import java.util.List;
 
 public class RecipeManager {
     // Thay bằng dữ liệu thật của bạn khi cần
-    public static List<RecipeTag> getAllTags() {
+    public static List<RecipeTagDto> getAllTags() {
         return new ArrayList<>(Arrays.asList(
-                new RecipeTag("r01","Pho"),
-                new RecipeTag("r02","Salad Caesar"),
-                new RecipeTag("r03","Pasta Bolognese"),
-                new RecipeTag("r04","Fried Rice"),
-                new RecipeTag("r05","Chicken Soup"),
-                new RecipeTag("r06","Sushi Roll"),
-                new RecipeTag("r07","Bun Cha")
+                new RecipeTagDto("r01","Pho"),
+                new RecipeTagDto("r02","Salad Caesar"),
+                new RecipeTagDto("r03","Pasta Bolognese"),
+                new RecipeTagDto("r04","Fried Rice"),
+                new RecipeTagDto("r05","Chicken Soup"),
+                new RecipeTagDto("r06","Sushi Roll"),
+                new RecipeTagDto("r07","Bun Cha")
         ));
     }
 }
