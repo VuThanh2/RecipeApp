@@ -21,7 +21,7 @@ public class MealPlanManager {
         calendar.setFirstDayOfWeek(Calendar.MONDAY);
         int year = calendar.get(Calendar.YEAR);
         int week = calendar.get(Calendar.WEEK_OF_YEAR);
-        return String.format(Locale.US, "%04d-%02d", year, week);
+        return String.format(Locale.US, "%04d-W%02d", year, week);
     }
 
     public static String offsetWeekId(String weekId, int offset) {
@@ -104,6 +104,7 @@ public class MealPlanManager {
             days.put(day.name(), new JSONArray());
         }
         week.put("days", days);
+        weeks.put(week);
         return week;
     }
 
