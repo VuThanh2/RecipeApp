@@ -12,6 +12,7 @@ import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import java.util.*;
 import com.example.recipeapp.R;
+import RecipeManager.Recipe;
 
 public class WeeklyAdapter extends RecyclerView.Adapter<WeeklyAdapter.DayVH> {
 
@@ -24,7 +25,7 @@ public class WeeklyAdapter extends RecyclerView.Adapter<WeeklyAdapter.DayVH> {
     private final Listener listener;
     private String weekId;
     private final Day[] days = Day.values();
-    private Map<Day, List<RecipeTag>> data = new HashMap<>();
+    private Map<Day, List<Recipe>> data = new HashMap<>();
 
     public WeeklyAdapter(Context ctx, String weekId, Listener listener) {
         this.ctx = ctx; this.weekId = weekId; this.listener = listener;
@@ -46,11 +47,11 @@ public class WeeklyAdapter extends RecyclerView.Adapter<WeeklyAdapter.DayVH> {
         Day d = days[pos];
         h.dayLabel.setText(d.name().substring(0,1)); // S/M/T...
         h.chips.removeAllViews();
-        List<RecipeTag> tags = data.get(d);
-        if (tags != null) for (RecipeTag t: tags) {
+        List<Recipe> tags = data.get(d);
+        if (tags != null) for (Recipe t: tags) {
             Chip c = (Chip) LayoutInflater.from(ctx).inflate(R.layout.part_chip, h.chips, false);
-            c.setText(t.title);
-            c.setOnLongClickListener(v -> { listener.onRemoveTag(d, t.id, t.title); return true; });
+            c.setText(t.getTitle());
+            c.setOnLongClickListener(v -> { listener.onRemoveTag(d, t.getId(), t.getTitle()); return true; });
             h.chips.addView(c);
         }
         h.addBtn.setOnClickListener(v -> listener.onAddClicked(d));

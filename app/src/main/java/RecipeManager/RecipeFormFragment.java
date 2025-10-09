@@ -14,6 +14,8 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import RecipeManager.Recipe;
+import RecipeManager.RecipeDataManager;
 
 import com.example.recipeapp.R;
 
@@ -30,14 +32,14 @@ public class RecipeFormFragment extends Fragment {
     private boolean isPinned = false;
     private ImageView btnPin;
 
-    public static RecipeFormFragment newInstance(@Nullable Recipe recipe, int index) {
-        RecipeFormFragment fragment = new RecipeFormFragment();
+    public static RecipeFormFragment newInstance(@Nullable Recipe recipe) {
+        RecipeFormFragment f = new RecipeFormFragment();
         Bundle args = new Bundle();
         args.putSerializable("recipe", recipe);
-        args.putInt("index", index);
-        fragment.setArguments(args);
-        return fragment;
+        f.setArguments(args);
+        return f;
     }
+
 
     @Nullable
     @Override
@@ -89,29 +91,34 @@ public class RecipeFormFragment extends Fragment {
         ivRecipeImage.setOnClickListener(v -> showImageSelectionDialog());
 
         btnSave.setOnClickListener(v -> {
-            JSONObject recipeObj = new JSONObject();
-            try {
-                recipeObj.put("title", etTitle.getText().toString());
-                recipeObj.put("category", etCategory.getText().toString());
-                recipeObj.put("ingredients", etIngredients.getText().toString());
-                recipeObj.put("instructions", etInstructions.getText().toString());
-                recipeObj.put("imageResId", selectedImage);
-                recipeObj.put("pinned", isPinned);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+            // 1) Lấy (hoặc tạo) Recipe đang chỉnh
+            Recipe toSave = (recipe != null) ? recipe : new Recipe();  // cần ctor rỗng
 
-            if (editingIndex >= 0) {
-                RecipeDataManager.updateRecipe(getContext(), editingIndex, recipeObj);
+            // 2) Đổ dữ liệu từ form
+            toSave.setTitle(etTitle.getText().toString());
+            toSave.setCategory(etCategory.getText().toString());
+            toSave.setIngredients(etIngredients.getText().toString());
+            toSave.setInstructions(etInstructions.getText().toString());
+            toSave.setImage(selectedImage);
+            toSave.setPinned(isPinned);
+
+            // 3) Gọi API mới theo id
+            if (toSave.getId() == null || toSave.getId().isEmpty()) {
+                // Trường hợp tạo mới (id sẽ tự phát trong add(...))
+                RecipeDataManager.add(requireContext(), toSave);
             } else {
-                RecipeDataManager.addRecipe(getContext(), recipeObj);
+                // Trường hợp cập nhật
+                RecipeDataManager.updateById(requireContext(), toSave.getId(), toSave);
             }
 
-            getParentFragmentManager().popBackStack(null, getParentFragmentManager().POP_BACK_STACK_INCLUSIVE);
-            getParentFragmentManager().beginTransaction()
+            // 4) Điều hướng như cũ
+            requireActivity().getSupportFragmentManager().popBackStack(null,
+                    getParentFragmentManager().POP_BACK_STACK_INCLUSIVE);
+            requireActivity().getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, new RecipeListFragment())
                     .commit();
         });
+
         return view;
     }
 

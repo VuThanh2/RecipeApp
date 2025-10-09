@@ -50,7 +50,7 @@ public class RecipeListFragment extends Fragment {
         rvUnpinned = view.findViewById(R.id.rvUnpinned);
         fab = view.findViewById(R.id.fab_add);
 
-        RecipeDataManager.CreateJsonFileIfEmpty(getContext());
+        RecipeDataManager.createJsonFileIfEmpty(getContext());
         loadRecipesFromFile();
 
         adapterPinned = new RecipeAdapter(pinnedList, (recipe, pos) ->
@@ -84,6 +84,7 @@ public class RecipeListFragment extends Fragment {
             try {
                 JSONObject obj = array.getJSONObject(i);
                 Recipe recipe = new Recipe(
+                        obj.getString("id"),
                         obj.getString("title"),
                         obj.getString("category"),
                         obj.getString("ingredients"),

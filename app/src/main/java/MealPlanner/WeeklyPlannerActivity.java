@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.recipeapp.R;
 
+
 public class WeeklyPlannerActivity extends AppCompatActivity implements WeeklyAdapter.Listener {
 
     private String weekId;
@@ -65,4 +66,6 @@ public class WeeklyPlannerActivity extends AppCompatActivity implements WeeklyAd
                 })
                 .setNegativeButton("Huỷ", null).show();
     }
+
+
 }
