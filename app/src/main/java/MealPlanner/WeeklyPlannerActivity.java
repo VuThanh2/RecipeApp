@@ -8,6 +8,10 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.recipeapp.R;
+import RecipeManager.Recipe;
+import RecipeManager.RecipeDataManager;
+
+
 
 public class WeeklyPlannerActivity extends AppCompatActivity implements WeeklyAdapter.Listener {
 
@@ -26,6 +30,7 @@ public class WeeklyPlannerActivity extends AppCompatActivity implements WeeklyAd
 
         weekId = MealPlanManager.currentWeekId();
         tvWeek.setText(weekId);
+        rv.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(this)); // <-- thêm dòng này
 
         adapter = new WeeklyAdapter(this, weekId, this);
         rv.setAdapter(adapter);
@@ -64,4 +69,6 @@ public class WeeklyPlannerActivity extends AppCompatActivity implements WeeklyAd
                 })
                 .setNegativeButton("Huỷ", null).show();
     }
+
+
 }

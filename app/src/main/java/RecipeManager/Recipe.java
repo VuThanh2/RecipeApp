@@ -10,8 +10,12 @@ public class Recipe implements Serializable {
     private int imageResId;
     private boolean pinned;
     private int globalIndex = -1;
+    private String id;
+    private int calories;      // nếu có
+    public Recipe() { }  // <--- THÊM constructor rỗng
 
-    public Recipe(String title, String category, String ingredients, String instructions, int imageResId) {
+    public Recipe(String id,String title, String category, String ingredients, String instructions, int imageResId) {
+        this.id = id;
         this.title = title;
         this.category = category;
         this.ingredients = ingredients;
@@ -19,7 +23,8 @@ public class Recipe implements Serializable {
         this.imageResId = imageResId;
         this.pinned = false;
     }
-
+    public void setId(String id)  {this.id = id;}
+    public String getId() {return id;}
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
     public String getCategory() { return category; }

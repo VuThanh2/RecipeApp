@@ -5,18 +5,24 @@ import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
+
 import com.example.recipeapp.R;
 import com.google.android.material.navigation.NavigationView;
+
 import java.util.Objects;
+
 import Login.LoginActivity;
 import Login.UserProfileActivity;
 import MealPlanner.WeeklyPlannerActivity;
 
-public class RecipeManagerActivity extends AppCompatActivity implements RecipeListFragment.OnRecipeSelectedListener {
+public class RecipeManagerActivity extends AppCompatActivity
+        implements RecipeListFragment.OnRecipeSelectedListener {
+
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private Toolbar toolbar;
@@ -80,9 +86,20 @@ public class RecipeManagerActivity extends AppCompatActivity implements RecipeLi
         }
     }
 
+    /**
+     * Callback từ RecipeListFragment.
+     * index đã lỗi thời (list giờ theo id); bỏ qua và mở Detail bằng recipe.
+     */
     @Override
-    public void onRecipeSelected(Recipe recipe, int index) {
-        RecipeDetailFragment detailFragment = RecipeDetailFragment.newInstance(recipe, index);
+    public void onRecipeSelected(Recipe recipe, int index /*deprecated*/) {
+        // Nếu bạn đã refactor RecipeDetailFragment như mình đề xuất:
+        RecipeDetailFragment detailFragment = RecipeDetailFragment.newInstance(recipe);
+
+        // Nếu muốn luôn lấy bản mới nhất từ storage theo id, bạn có thể:
+        // Recipe fresh = (recipe != null && recipe.getId() != null)
+        //     ? RecipeDataManager.getById(this, recipe.getId()) : null;
+        // RecipeDetailFragment detailFragment = RecipeDetailFragment.newInstance(fresh != null ? fresh : recipe);
+
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, detailFragment)
                 .addToBackStack(null)
@@ -111,5 +128,4 @@ public class RecipeManagerActivity extends AppCompatActivity implements RecipeLi
             finish();
         }
     }
-
 }
