@@ -22,15 +22,32 @@ import com.example.recipeapp.R;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.view.inputmethod.EditorInfo;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
+import com.google.android.material.textfield.TextInputEditText;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 public class RecipeFormFragment extends Fragment {
-    private EditText etTitle, etIngredients, etInstructions;
+    private EditText etTitle, etInstructions;
     private AutoCompleteTextView etCategory;
+    // Part C fields
+    private AutoCompleteTextView actvIngredient;
+    private TextInputEditText etQuantity;
+    private ChipGroup chipGroupItems;
+
     private Button btnSave;
     private ImageView ivRecipeImage;
     private Recipe recipe;
     private int selectedImage = R.drawable.default_background;
     private boolean isPinned = false;
     private ImageView btnPin;
+
+    // Stage structured items while editing
+    private final List<Recipe.RecipeItem> stagedItems = new ArrayList<>();
 
     public static RecipeFormFragment newInstance(@Nullable Recipe recipe) {
         RecipeFormFragment f = new RecipeFormFragment();
@@ -49,8 +66,12 @@ public class RecipeFormFragment extends Fragment {
 
         etTitle = view.findViewById(R.id.etTitle);
         etCategory = view.findViewById(R.id.etCategory);
-        etIngredients = view.findViewById(R.id.etIngredients);
         etInstructions = view.findViewById(R.id.etInstructions);
+        // Part C views (optional: assume they exist since we removed legacy field)
+        actvIngredient = view.findViewById(R.id.actvIngredient);
+        etQuantity     = view.findViewById(R.id.etQuantity);
+        chipGroupItems = view.findViewById(R.id.chipGroupItems);
+
         btnSave = view.findViewById(R.id.btnSave);
         ivRecipeImage = view.findViewById(R.id.ivRecipeImage);
         btnPin = view.findViewById(R.id.btnPin);
@@ -61,6 +82,21 @@ public class RecipeFormFragment extends Fragment {
         etCategory.setAdapter(adapter);
         etCategory.setThreshold(0);
         etCategory.setKeyListener(null);
+
+        // ---- Part C: chip picker wiring ----
+        if (actvIngredient != null && etQuantity != null && chipGroupItems != null) {
+            List<String> suggestions = collectIngredientSuggestions();
+            ArrayAdapter<String> ingAdapter = new ArrayAdapter<>(
+                    requireContext(), android.R.layout.simple_list_item_1, suggestions);
+            actvIngredient.setAdapter(ingAdapter);
+            actvIngredient.setOnFocusChangeListener((vv, hasFocus) -> { if (hasFocus) actvIngredient.showDropDown(); });
+
+            actvIngredient.setOnItemClickListener((parent, view1, position, id1) -> addCurrentChip());
+            actvIngredient.setOnEditorActionListener((tv, actionId, event) -> {
+                if (actionId == EditorInfo.IME_ACTION_DONE) { addCurrentChip(); return true; }
+                return false;
+            });
+        }
 
         LoadRecipeFromDetail();
 
@@ -97,17 +133,20 @@ public class RecipeFormFragment extends Fragment {
             // 2) Đổ dữ liệu từ form
             toSave.setTitle(etTitle.getText().toString());
             toSave.setCategory(etCategory.getText().toString());
-            toSave.setIngredients(etIngredients.getText().toString());
             toSave.setInstructions(etInstructions.getText().toString());
             toSave.setImage(selectedImage);
             toSave.setPinned(isPinned);
 
+            // Build legacy text from chips for compatibility, and persist structured items
+            List<Recipe.RecipeItem> itemsToSave = new ArrayList<>(stagedItems);
+            String legacy = buildLegacyTextFromItems(itemsToSave);
+            toSave.setItems(itemsToSave);
+            toSave.setIngredients(legacy);
+
             // 3) Gọi API mới theo id
             if (toSave.getId() == null || toSave.getId().isEmpty()) {
-                // Trường hợp tạo mới (id sẽ tự phát trong add(...))
                 RecipeDataManager.add(requireContext(), toSave);
             } else {
-                // Trường hợp cập nhật
                 RecipeDataManager.updateById(requireContext(), toSave.getId(), toSave);
             }
 
@@ -154,13 +193,97 @@ public class RecipeFormFragment extends Fragment {
             if (recipe != null) {
                 etTitle.setText(recipe.getTitle());
                 etCategory.setText(recipe.getCategory());
-                etIngredients.setText(recipe.getIngredients());
                 etInstructions.setText(recipe.getInstructions());
                 selectedImage = recipe.getImage();
                 ivRecipeImage.setImageResource(selectedImage);
                 isPinned = recipe.isPinned();
                 updatePinIcon();
+
+                // Hydrate chips from existing items (preferred), else from legacy text
+                stagedItems.clear();
+                List<Recipe.RecipeItem> source = (recipe.getItems() != null && !recipe.getItems().isEmpty())
+                        ? recipe.getItems()
+                        : RecipeDataManager.parseLegacyIngredients(recipe.getIngredients());
+                if (chipGroupItems != null) {
+                    chipGroupItems.removeAllViews();
+                    if (source != null) {
+                        for (Recipe.RecipeItem it : source) {
+                            stagedItems.add(it);
+                            addChipFromItem(it);
+                        }
+                    }
+                }
             }
         }
+    }
+
+    private void addCurrentChip() {
+        String name = actvIngredient.getText() == null ? "" : actvIngredient.getText().toString().trim();
+        String qty  = etQuantity.getText() == null ? "" : etQuantity.getText().toString().trim();
+        if (name.isEmpty()) return;
+
+        Recipe.Ingredient ing = new Recipe.Ingredient(null, name);
+        Recipe.RecipeItem item = new Recipe.RecipeItem(ing, qty);
+        stagedItems.add(item);
+
+        addChipFromItem(item);
+
+        actvIngredient.setText("");
+        etQuantity.setText("");
+    }
+
+    private void addChipFromItem(Recipe.RecipeItem item) {
+        String name = item.getIngredient() != null ? item.getIngredient().getName() : "";
+        String qty  = item.getQuantity() == null ? "" : item.getQuantity().trim();
+        String label = name + (qty.isEmpty() ? "" : " — " + qty);
+
+        Chip chip = new Chip(requireContext(), null, com.google.android.material.R.attr.chipStyle);
+        chip.setText(label);
+        chip.setCloseIconVisible(true);
+        chip.setCheckable(false);
+        chip.setOnCloseIconClickListener(v -> {
+            chipGroupItems.removeView(chip);
+            stagedItems.remove(item);
+        });
+        chipGroupItems.addView(chip);
+    }
+
+    private List<String> collectIngredientSuggestions() {
+        Set<String> set = new HashSet<>();
+        for (Recipe r : RecipeDataManager.loadAll(requireContext())) {
+            if (r.getItems() != null) {
+                for (Recipe.RecipeItem it : r.getItems()) {
+                    if (it.getIngredient() != null && it.getIngredient().getName() != null) {
+                        String n = it.getIngredient().getName().trim();
+                        if (!n.isEmpty()) set.add(n);
+                    }
+                }
+            }
+            String legacy = r.getIngredients();
+            if (legacy != null && !legacy.trim().isEmpty()) {
+                for (Recipe.RecipeItem it : RecipeDataManager.parseLegacyIngredients(legacy)) {
+                    if (it.getIngredient() != null && it.getIngredient().getName() != null) {
+                        String n = it.getIngredient().getName().trim();
+                        if (!n.isEmpty()) set.add(n);
+                    }
+                }
+            }
+        }
+        return new ArrayList<>(set);
+    }
+
+    private String buildLegacyTextFromItems(List<Recipe.RecipeItem> items) {
+        if (items == null || items.isEmpty()) return "";
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < items.size(); i++) {
+            Recipe.RecipeItem it = items.get(i);
+            String name = (it.getIngredient() != null && it.getIngredient().getName() != null)
+                    ? it.getIngredient().getName() : "";
+            String qty  = it.getQuantity() == null ? "" : it.getQuantity().trim();
+            if (!name.isEmpty()) sb.append(name);
+            if (!qty.isEmpty()) sb.append(" — ").append(qty);
+            if (i < items.size() - 1) sb.append("\n");
+        }
+        return sb.toString();
     }
 }

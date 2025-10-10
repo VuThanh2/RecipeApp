@@ -70,6 +70,8 @@
                 android:clickable="true"/>
         </com.google.android.material.textfield.TextInputLayout>
 
+
+        <!-- Part C: Ingredient picker (name autocomplete) -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -78,16 +80,45 @@
             app:boxCornerRadiusTopStart="8dp"
             app:boxCornerRadiusTopEnd="8dp"
             app:boxCornerRadiusBottomStart="8dp"
+            app:boxCornerRadiusBottomEnd="8dp"
+            app:endIconMode="clear_text">
+
+            <AutoCompleteTextView
+                android:id="@+id/actvIngredient"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Add ingredient..."
+                android:imeOptions="actionDone"
+                android:inputType="text" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Part C: Quantity input -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:boxBackgroundMode="outline"
+            app:boxCornerRadiusTopStart="8dp"
+            app:boxCornerRadiusTopEnd="8dp"
+            app:boxCornerRadiusBottomStart="8dp"
             app:boxCornerRadiusBottomEnd="8dp">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etIngredients"
+                android:id="@+id/etQuantity"
                 android:layout_width="match_parent"
-                android:layout_height="150dp"
-                android:gravity="top"
-                android:hint="Ingredients"
-                android:inputType="textMultiLine"/>
+                android:layout_height="wrap_content"
+                android:hint="Quantity (e.g. 200g)" />
         </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Part C: Chips container -->
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipGroupItems"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:singleLine="false"
+            app:singleSelection="false"
+            app:chipSpacing="8dp" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"

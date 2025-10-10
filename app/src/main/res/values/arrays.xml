@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="diet_mode_values">
+        <item>normal</item>
+        <item>vegan</item>
+        <item>keto</item>
+        <item>gluten_free</item>
+    </string-array>
+    <string-array name="diet_mode_labels">
+        <item>Normal</item>
+        <item>Vegan</item>
+        <item>Keto</item>
+        <item>Gluten-free</item>
+    </string-array>
+</resources>
