@@ -7,9 +7,8 @@ import org.json.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-
 import java.util.Locale;
-
+import RecipeManager.Recipe;
 public class MealPlanManager {
     private static final String FILE = "meal_plans.json";
     private static final String TMP = "meal_plans.json.tmp";
@@ -108,35 +107,38 @@ public class MealPlanManager {
         return week;
     }
 
-    public static List<RecipeTag> getDayPlan(Context ctx, String weekId, Day day) {
+    public static List<Recipe> getDayPlan(Context ctx, String weekId, Day day) {
         JSONArray weeks = load(ctx);
-        ArrayList<RecipeTag> list = new ArrayList<>();
+        ArrayList<Recipe> list = new ArrayList<>();
         try {
             JSONObject w = getWeekObj(ctx, weekId, weeks);
             JSONArray arr = w.getJSONObject("days").optJSONArray(day.name());
             for (int i=0;i<arr.length();i++) {
                 JSONObject o = arr.getJSONObject(i);
-                list.add(new RecipeTag(o.optString("id"), o.optString("title")));
+                Recipe r = new Recipe();                    // dùng ctor rỗng
+                r.setId(o.optString("id", null));
+                r.setTitle(o.optString("title", ""));
+                list.add(r);
             }
         } catch (Exception ignored) {}
         return list;
     }
 
-    public static Map<Day, List<RecipeTag>> getWeek(Context ctx, String weekId) {
-        HashMap<Day, List<RecipeTag>> map = new HashMap<>();
+    public static Map<Day, List<Recipe>> getWeek(Context ctx, String weekId) {
+        HashMap<Day, List<Recipe>> map = new HashMap<>();
         for (Day d: Day.values()) map.put(d, getDayPlan(ctx, weekId, d));
         return map;
     }
 
-    public static boolean addRecipe(Context ctx, String weekId, Day day, RecipeTag tag) {
+    public static boolean addRecipe(Context ctx, String weekId, Day day, Recipe tag) {
         JSONArray weeks = load(ctx);
         try {
             JSONObject w = getWeekObj(ctx, weekId, weeks);
             JSONArray arr = w.getJSONObject("days").getJSONArray(day.name());
             // no duplicate id per day
             for (int i=0;i<arr.length();i++)
-                if (tag.id.equals(arr.getJSONObject(i).optString("id"))) return false;
-            JSONObject o = new JSONObject().put("id", tag.id).put("title", tag.title);
+                if (tag.getId().equals(arr.getJSONObject(i).optString("id"))) return false;
+            JSONObject o = new JSONObject().put("id", tag.getId()).put("title", tag.getTitle());
             arr.put(o);
             save(ctx, weeks);
             return true;
@@ -160,36 +162,8 @@ public class MealPlanManager {
             return removed;
         } catch (Exception e) { return false; }
     }
-    // Temporary: dummy test data
-    public static Map<Day, List<RecipeTag>> getDummyWeek() {
-        Map<Day, List<RecipeTag>> map = new HashMap<>();
 
-        map.put(Day.MON, Arrays.asList(
-                new RecipeTag("r1", "Pho"),
-                new RecipeTag("r2", "Spring Rolls")
-        ));
-        map.put(Day.TUE, Arrays.asList(
-                new RecipeTag("r3", "Banh Mi")
-        ));
-        map.put(Day.WED, Arrays.asList(
-                new RecipeTag("r4", "Fried Rice"),
-                new RecipeTag("r5", "Salad")
-        ));
-        map.put(Day.THU, Collections.singletonList(
-                new RecipeTag("r6", "Bun Cha")
-        ));
-        map.put(Day.FRI, Arrays.asList(
-                new RecipeTag("r7", "Grilled Chicken"),
-                new RecipeTag("r8", "Sushi")
-        ));
-        map.put(Day.SAT, Arrays.asList(
-                new RecipeTag("r9", "Pancakes")
-        ));
-        map.put(Day.SUN, Arrays.asList(
-                new RecipeTag("r10", "Steak")
-        ));
 
-        return map;
-    }
+
 
 }

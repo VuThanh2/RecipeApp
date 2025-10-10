@@ -7,6 +7,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -15,16 +17,16 @@ import com.example.recipeapp.R;
 
 public class RecipeDetailFragment extends Fragment {
     private Recipe recipe;
-    private int recipeIndex;
+
     private TextView tvTitle, tvCategory, tvIngredients, tvInstructions;
     private Button btnEdit, btnDelete;
     private ImageView ivRecipeImage;
 
-    public static RecipeDetailFragment newInstance(Recipe recipe, int index) {
+    /** Khởi tạo theo Recipe (không còn index). */
+    public static RecipeDetailFragment newInstance(Recipe recipe) {
         RecipeDetailFragment fragment = new RecipeDetailFragment();
         Bundle args = new Bundle();
-        args.putSerializable("recipe", recipe);
-        args.putInt("index", index);
+        args.putSerializable("recipe", recipe); // có thể chuyển sang Parcelable sau
         fragment.setArguments(args);
         return fragment;
     }
@@ -43,10 +45,16 @@ public class RecipeDetailFragment extends Fragment {
         btnEdit = view.findViewById(R.id.btnEdit);
         btnDelete = view.findViewById(R.id.btnDelete);
 
-        LoadSavedRecipe();
+        loadRecipeFromArgs();
+        bindRecipeToUi();
 
         btnEdit.setOnClickListener(v -> {
-            RecipeFormFragment formFragment = RecipeFormFragment.newInstance(recipe, recipeIndex);
+            if (recipe == null) {
+                Toast.makeText(requireContext(), "Recipe not found", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            // Mở form ở chế độ EDIT theo Recipe (id nằm trong recipe)
+            RecipeFormFragment formFragment = RecipeFormFragment.newInstance(recipe);
             getParentFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, formFragment)
                     .addToBackStack(null)
@@ -54,26 +62,37 @@ public class RecipeDetailFragment extends Fragment {
         });
 
         btnDelete.setOnClickListener(v -> {
-            RecipeDataManager.deleteRecipe(requireContext(), recipeIndex);
-            getParentFragmentManager().popBackStack(); // Go back to list
+            if (recipe == null || recipe.getId() == null || recipe.getId().isEmpty()) {
+                Toast.makeText(requireContext(), "Cannot delete: invalid recipe id", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            // ✅ API mới theo id
+            RecipeDataManager.deleteById(requireContext(), recipe.getId());
+            // Quay lại danh sách; RecipeListFragment sẽ reload ở onResume()
+            getParentFragmentManager().popBackStack();
         });
 
         return view;
     }
 
-    private void LoadSavedRecipe() {
-        if (getArguments() != null) {
-            recipe = (Recipe) getArguments().getSerializable("recipe");
-            recipeIndex = getArguments().getInt("index", -1);
-
-            if (recipe != null) {
-                tvTitle.setText(recipe.getTitle());
-                tvCategory.setText(recipe.getCategory());
-                tvIngredients.setText(recipe.getIngredients());
-                tvInstructions.setText(recipe.getInstructions());
-                ivRecipeImage.setImageResource(recipe.getImage());
-            }
+    private void loadRecipeFromArgs() {
+        Bundle args = getArguments();
+        if (args != null) {
+            recipe = (Recipe) args.getSerializable("recipe");
+            // Nếu bạn muốn “chắc cú” dữ liệu mới nhất theo id:
+            // if (recipe != null && recipe.getId() != null) {
+            //     Recipe fresh = RecipeDataManager.getById(requireContext(), recipe.getId());
+            //     if (fresh != null) recipe = fresh;
+            // }
         }
     }
-}
 
+    private void bindRecipeToUi() {
+        if (recipe == null) return;
+        tvTitle.setText(recipe.getTitle());
+        tvCategory.setText(recipe.getCategory());
+        tvIngredients.setText(recipe.getIngredients());
+        tvInstructions.setText(recipe.getInstructions());
+        ivRecipeImage.setImageResource(recipe.getImage());
+    }
+}
