@@ -1,4 +1,9 @@
 package MealPlanner;
+import androidx.appcompat.app.AlertDialog;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+import Login.UserDataManager;
 
 import android.os.Bundle;
 import android.text.Editable;
@@ -33,6 +38,10 @@ public class AddRecipeBottomSheet extends BottomSheetDialogFragment {
     private final List<Recipe> all = new ArrayList<>();
     private final List<Recipe> filtered = new ArrayList<>();
 
+    // Part F — diet context (fallback defaults keep legacy behavior)
+    private String dietMode = "normal";   // normal | vegan | keto | gluten_free
+    private String filterPolicy = "warn"; // warn | hide
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inf, @Nullable ViewGroup parent, @Nullable Bundle b) {
@@ -44,7 +53,16 @@ public class AddRecipeBottomSheet extends BottomSheetDialogFragment {
         // Lấy dữ liệu thật từ RecipeManager
         List<Recipe> data = RecipeDataManager.loadAll(requireContext());
         all.clear(); all.addAll(data);
-        filtered.clear(); filtered.addAll(all);
+
+        // Resolve diet/policy from Activity Intent if available; defaults keep app working
+        resolveDietContext();
+
+        filtered.clear();
+        if ("hide".equalsIgnoreCase(filterPolicy)) {
+            for (Recipe r : all) if (isAllowedRecipe(r, dietMode)) filtered.add(r);
+        } else {
+            filtered.addAll(all);
+        }
 
         adapter = new ArrayAdapter<>(requireContext(),
                 android.R.layout.simple_list_item_1,
@@ -53,8 +71,20 @@ public class AddRecipeBottomSheet extends BottomSheetDialogFragment {
 
         list.setOnItemClickListener((parent1, view, position, id) -> {
             Recipe picked = filtered.get(position);
-            if (callback != null) callback.onPicked(picked);
-            dismiss();
+            boolean allowed = isAllowedRecipe(picked, dietMode);
+            if (!allowed && "warn".equalsIgnoreCase(filterPolicy)) {
+                String why = violationSummary(picked, dietMode);
+                new AlertDialog.Builder(requireContext())
+                        .setTitle("Contains restricted items")
+                        .setMessage(why.isEmpty() ? "This recipe doesn't match your diet. Continue?"
+                                : ("This recipe has: " + why + "\nContinue?"))
+                        .setPositiveButton("Add anyway", (d, w) -> { if (callback != null) callback.onPicked(picked); dismiss(); })
+                        .setNegativeButton("Cancel", null)
+                        .show();
+            } else {
+                if (callback != null) callback.onPicked(picked);
+                dismiss();
+            }
         });
 
         search.addTextChangedListener(new TextWatcher() {
@@ -69,11 +99,17 @@ public class AddRecipeBottomSheet extends BottomSheetDialogFragment {
     }
 
     private void filter(String q) {
-        String query = q.toLowerCase().trim();
+        String query = q == null ? "" : q.toLowerCase().trim();
         filtered.clear();
         for (Recipe r : all) {
             String title = r.getTitle() == null ? "" : r.getTitle();
-            if (title.toLowerCase().contains(query)) filtered.add(r);
+            boolean match = title.toLowerCase().contains(query);
+            if (!match) continue;
+            if ("hide".equalsIgnoreCase(filterPolicy)) {
+                if (isAllowedRecipe(r, dietMode)) filtered.add(r);
+            } else {
+                filtered.add(r);
+            }
         }
         adapter.clear();
         adapter.addAll(toTitles(filtered));
@@ -83,8 +119,59 @@ public class AddRecipeBottomSheet extends BottomSheetDialogFragment {
     private List<String> toTitles(List<Recipe> list) {
         ArrayList<String> titles = new ArrayList<>();
         for (Recipe r : list) {
-            titles.add(r.getTitle() == null ? "(Untitled)" : r.getTitle());
+            String base = r.getTitle() == null ? "(Untitled)" : r.getTitle();
+            if ("warn".equalsIgnoreCase(filterPolicy) && !isAllowedRecipe(r, dietMode)) {
+                titles.add(base + "  ⚠");
+            } else {
+                titles.add(base);
+            }
         }
         return titles;
+    }
+
+    private void resolveDietContext() {
+        String username = null;
+        if (getActivity() != null && getActivity().getIntent() != null) {
+            username = getActivity().getIntent().getStringExtra("username");
+            String pol = getActivity().getIntent().getStringExtra("dietPolicy");
+            if (pol != null) filterPolicy = "hide".equalsIgnoreCase(pol) ? "hide" : "warn";
+        }
+        try {
+            dietMode = UserDataManager.getDietMode(requireContext(), username == null ? "" : username);
+            if (dietMode == null || dietMode.isEmpty()) dietMode = "normal";
+        } catch (Throwable t) {
+            dietMode = "normal";
+        }
+    }
+
+    private boolean isAllowedRecipe(Recipe r, String diet) {
+        if (r == null || r.getItems() == null) return true;
+        Set<String> forbidden = forbiddenFor(diet);
+        for (Recipe.RecipeItem it : r.getItems()) {
+            Recipe.Ingredient ing = it.getIngredient();
+            if (ing == null || ing.getTags() == null) continue;
+            for (String t : ing.getTags()) if (forbidden.contains(t)) return false;
+        }
+        return true;
+    }
+
+    private String violationSummary(Recipe r, String diet) {
+        if (r == null || r.getItems() == null) return "";
+        Set<String> forbidden = forbiddenFor(diet);
+        Set<String> hit = new HashSet<>();
+        for (Recipe.RecipeItem it : r.getItems()) {
+            Recipe.Ingredient ing = it.getIngredient();
+            if (ing == null || ing.getTags() == null) continue;
+            for (String t : ing.getTags()) if (forbidden.contains(t)) hit.add(t);
+        }
+        return String.join(", ", hit); // e.g., "meat, dairy"
+    }
+
+    private Set<String> forbiddenFor(String diet) {
+        String d = diet == null ? "" : diet.trim().toLowerCase();
+        if ("vegan".equals(d)) return new HashSet<>(Arrays.asList("meat","fish","dairy","egg"));
+        if ("keto".equals(d)) return new HashSet<>(Arrays.asList("sugar","high-carb"));
+        if ("gluten_free".equals(d)) return new HashSet<>(Arrays.asList("wheat","barley","rye","gluten"));
+        return java.util.Collections.emptySet();
     }
 }

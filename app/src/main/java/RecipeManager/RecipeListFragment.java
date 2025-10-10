@@ -18,6 +18,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.ArrayList;
 import java.util.List;
 
+import Login.UserDataManager;
+
 public class RecipeListFragment extends Fragment {
     private RecyclerView rvPinned, rvUnpinned;
     private RecipeAdapter adapterPinned, adapterUnpinned;
@@ -25,6 +27,10 @@ public class RecipeListFragment extends Fragment {
     private final List<Recipe> unpinnedList = new ArrayList<>();
     private FloatingActionButton fab;
     private OnRecipeSelectedListener listener;
+
+    // Part F: diet context (defaults keep legacy behavior if nothing is passed)
+    private String dietMode = "normal";      // normal | vegan | keto | gluten_free
+    private String filterPolicy = "warn";    // warn | hide
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -55,6 +61,11 @@ public class RecipeListFragment extends Fragment {
         RecipeDataManager.createJsonFileIfEmpty(requireContext());
 
         setupAdapters();
+
+        // Resolve diet & policy from Intent (fallbacks keep app working if nothing provided)
+        resolveDietContext();
+        applyDietContextToAdapters();
+
         reloadData();
 
         fab.setOnClickListener(v -> {
@@ -96,6 +107,12 @@ public class RecipeListFragment extends Fragment {
             else unpinnedList.add(r);
         }
 
+        // Part F: apply hide policy by filtering data BEFORE notifying adapters
+        if ("hide".equalsIgnoreCase(filterPolicy)) {
+            filterListInPlace(pinnedList, dietMode);
+            filterListInPlace(unpinnedList, dietMode);
+        }
+
         if (adapterPinned != null) adapterPinned.notifyDataSetChanged();
         if (adapterUnpinned != null) adapterUnpinned.notifyDataSetChanged();
     }
@@ -104,5 +121,65 @@ public class RecipeListFragment extends Fragment {
     public void onResume() {
         super.onResume();
         reloadData();
+    }
+
+    private void resolveDietContext() {
+        // Get username/policy from Intent if provided; defaults keep app working
+        String username = null;
+        if (requireActivity().getIntent() != null) {
+            username = requireActivity().getIntent().getStringExtra("username");
+            String policyExtra = requireActivity().getIntent().getStringExtra("dietPolicy");
+            if (policyExtra != null) filterPolicy = "hide".equalsIgnoreCase(policyExtra) ? "hide" : "warn";
+        }
+        // Diet mode comes from UserDataManager if username is available; else default "normal"
+        try {
+            dietMode = UserDataManager.getDietMode(requireContext(), username == null ? "" : username);
+            if (dietMode == null || dietMode.trim().isEmpty()) dietMode = "normal";
+        } catch (Throwable t) {
+            dietMode = "normal";
+        }
+    }
+
+    private void applyDietContextToAdapters() {
+        if (adapterPinned != null) {
+            adapterPinned.setDietMode(dietMode);
+            adapterPinned.setFilterPolicy(filterPolicy);
+        }
+        if (adapterUnpinned != null) {
+            adapterUnpinned.setDietMode(dietMode);
+            adapterUnpinned.setFilterPolicy(filterPolicy);
+        }
+    }
+
+    private void filterListInPlace(List<Recipe> list, String diet) {
+        java.util.Iterator<Recipe> it = list.iterator();
+        while (it.hasNext()) {
+            if (!isAllowedRecipe(it.next(), diet)) it.remove();
+        }
+    }
+
+    private boolean isAllowedRecipe(Recipe r, String diet) {
+        if (r == null || r.getItems() == null) return true;
+        java.util.Set<String> forbidden;
+        String d = (diet == null ? "" : diet.trim().toLowerCase());
+        switch (d) {
+            case "vegan":
+                forbidden = new java.util.HashSet<>(java.util.Arrays.asList("meat","fish","dairy","egg"));
+                break;
+            case "keto":
+                forbidden = new java.util.HashSet<>(java.util.Arrays.asList("sugar","high-carb"));
+                break;
+            case "gluten_free":
+                forbidden = new java.util.HashSet<>(java.util.Arrays.asList("wheat","barley","rye","gluten"));
+                break;
+            default:
+                forbidden = java.util.Collections.emptySet();
+        }
+        for (Recipe.RecipeItem it : r.getItems()) {
+            Recipe.Ingredient ing = it.getIngredient();
+            if (ing == null || ing.getTags() == null) continue;
+            for (String t : ing.getTags()) if (forbidden.contains(t)) return false;
+        }
+        return true;
     }
 }

@@ -1,5 +1,9 @@
 package RecipeManager;
 
+import android.content.res.ColorStateList;
+import android.graphics.Color;
+import Login.UserDataManager;
+
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -10,7 +14,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-
+import androidx.fragment.app.FragmentManager;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -18,9 +22,6 @@ import RecipeManager.Recipe;
 import RecipeManager.RecipeDataManager;
 
 import com.example.recipeapp.R;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.view.inputmethod.EditorInfo;
 import com.google.android.material.chip.Chip;
@@ -45,6 +46,8 @@ public class RecipeFormFragment extends Fragment {
     private int selectedImage = R.drawable.default_background;
     private boolean isPinned = false;
     private ImageView btnPin;
+
+    private String currentDietMode = "normal";
 
     // Stage structured items while editing
     private final List<Recipe.RecipeItem> stagedItems = new ArrayList<>();
@@ -75,6 +78,11 @@ public class RecipeFormFragment extends Fragment {
         btnSave = view.findViewById(R.id.btnSave);
         ivRecipeImage = view.findViewById(R.id.ivRecipeImage);
         btnPin = view.findViewById(R.id.btnPin);
+
+        // Resolve current user's diet mode (best-effort; default = normal)
+        String usernameArg = requireActivity().getIntent() != null
+                ? requireActivity().getIntent().getStringExtra("username") : null;
+        currentDietMode = UserDataManager.getDietMode(requireContext(), usernameArg == null ? "" : usernameArg);
 
         String[] categories = {"Breakfast", "Lunch", "Dinner", "Vegetarian", "Dessert"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
@@ -123,7 +131,6 @@ public class RecipeFormFragment extends Fragment {
             updatePinIcon();
         });
 
-        int editingIndex = getArguments() != null ? getArguments().getInt("index", -1) : -1;
         ivRecipeImage.setOnClickListener(v -> showImageSelectionDialog());
 
         btnSave.setOnClickListener(v -> {
@@ -151,8 +158,8 @@ public class RecipeFormFragment extends Fragment {
             }
 
             // 4) Điều hướng như cũ
-            requireActivity().getSupportFragmentManager().popBackStack(null,
-                    getParentFragmentManager().POP_BACK_STACK_INCLUSIVE);
+            requireActivity().getSupportFragmentManager().popBackStack(
+                    null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
             requireActivity().getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, new RecipeListFragment())
                     .commit();
@@ -223,6 +230,7 @@ public class RecipeFormFragment extends Fragment {
         if (name.isEmpty()) return;
 
         Recipe.Ingredient ing = new Recipe.Ingredient(null, name);
+        ing.setTags(tagsForName(name));
         Recipe.RecipeItem item = new Recipe.RecipeItem(ing, qty);
         stagedItems.add(item);
 
@@ -237,7 +245,13 @@ public class RecipeFormFragment extends Fragment {
         String qty  = item.getQuantity() == null ? "" : item.getQuantity().trim();
         String label = name + (qty.isEmpty() ? "" : " — " + qty);
 
-        Chip chip = new Chip(requireContext(), null, com.google.android.material.R.attr.chipStyle);
+        Chip chip = new Chip(requireContext());
+        boolean allowed = DietRules.isAllowed(item.getIngredient(), currentDietMode);
+        if (!allowed) {
+            chip.setAlpha(0.7f);
+            chip.setChipStrokeWidth(2f);
+            chip.setChipStrokeColor(ColorStateList.valueOf(Color.parseColor("#FF4444")));
+        }
         chip.setText(label);
         chip.setCloseIconVisible(true);
         chip.setCheckable(false);
@@ -286,4 +300,35 @@ public class RecipeFormFragment extends Fragment {
         }
         return sb.toString();
     }
+
+    // Local heuristic: map ingredient name → tags (so we don't depend on other classes)
+    private List<String> tagsForName(String rawName) {
+        List<String> tags = new ArrayList<>();
+        if (rawName == null) return tags;
+        String n = rawName.trim().toLowerCase();
+        if (n.isEmpty()) return tags;
+
+        // --- meat / fish / dairy / egg ---
+        if (n.matches(".*\\b(beef|steak|pork|bacon|ham|chicken|turkey|lamb|goat)\\b.*")) tags.add("meat");
+        if (n.matches(".*\\b(fish|salmon|tuna|mackerel|sardine|anchovy|shrimp|prawn|crab|octopus|squid)\\b.*")) tags.add("fish");
+        if (n.matches(".*\\b(milk|cheese|butter|yogurt|cream)\\b.*")) tags.add("dairy");
+        if (n.matches(".*\\b(egg|eggs)\\b.*")) tags.add("egg");
+
+        // --- gluten / grains ---
+        if (n.matches(".*\\b(wheat|barley|rye|semolina|farina|spelt|malt)\\b.*")) tags.add("gluten");
+        if (n.matches(".*\\b(bread|pasta|noodle|udon|spaghetti|flour)\\b.*")) tags.add("gluten");
+
+        // --- high-carb / sugar ---
+        if (n.matches(".*\\b(rice|potato|noodle|pasta|bread)\\b.*")) tags.add("high-carb");
+        if (n.matches(".*\\b(sugar|honey|syrup|molasses)\\b.*")) tags.add("sugar");
+
+        // --- vegan-friendly cues ---
+        if (n.matches(".*\\b(tofu|tempeh|seitan|soy milk|almond milk|oat milk)\\b.*")) tags.add("vegan-friendly");
+
+        // de-duplicate
+        Set<String> uniq = new HashSet<>(tags);
+        return new ArrayList<>(uniq);
+    }
+
+
 }
