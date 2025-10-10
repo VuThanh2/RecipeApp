@@ -5,6 +5,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -64,6 +65,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.ViewHolder
             ivRecipeImage = itemView.findViewById(R.id.ivRecipeImage);
         }
     }
+
     public void updateList(List<Recipe> newList) {
         this.recipeList.clear();
         this.recipeList.addAll(newList);

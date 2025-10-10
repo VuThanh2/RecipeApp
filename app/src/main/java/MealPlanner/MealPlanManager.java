@@ -8,7 +8,9 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.Locale;
+
 import RecipeManager.Recipe;
+
 public class MealPlanManager {
     private static final String FILE = "meal_plans.json";
     private static final String TMP = "meal_plans.json.tmp";
@@ -40,7 +42,7 @@ public class MealPlanManager {
     }
 
     //load/save json
-    private static JSONArray load(Context context)  {
+    private static JSONArray load(Context context) {
         synchronized (LOCK) {
             File file = new File(context.getFilesDir(), FILE);
             if (!file.exists()) return new JSONArray();
@@ -113,20 +115,21 @@ public class MealPlanManager {
         try {
             JSONObject w = getWeekObj(ctx, weekId, weeks);
             JSONArray arr = w.getJSONObject("days").optJSONArray(day.name());
-            for (int i=0;i<arr.length();i++) {
+            for (int i = 0; i < arr.length(); i++) {
                 JSONObject o = arr.getJSONObject(i);
                 Recipe r = new Recipe();                    // dùng ctor rỗng
                 r.setId(o.optString("id", null));
                 r.setTitle(o.optString("title", ""));
                 list.add(r);
             }
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
         return list;
     }
 
     public static Map<Day, List<Recipe>> getWeek(Context ctx, String weekId) {
         HashMap<Day, List<Recipe>> map = new HashMap<>();
-        for (Day d: Day.values()) map.put(d, getDayPlan(ctx, weekId, d));
+        for (Day d : Day.values()) map.put(d, getDayPlan(ctx, weekId, d));
         return map;
     }
 
@@ -136,13 +139,15 @@ public class MealPlanManager {
             JSONObject w = getWeekObj(ctx, weekId, weeks);
             JSONArray arr = w.getJSONObject("days").getJSONArray(day.name());
             // no duplicate id per day
-            for (int i=0;i<arr.length();i++)
+            for (int i = 0; i < arr.length(); i++)
                 if (tag.getId().equals(arr.getJSONObject(i).optString("id"))) return false;
             JSONObject o = new JSONObject().put("id", tag.getId()).put("title", tag.getTitle());
             arr.put(o);
             save(ctx, weeks);
             return true;
-        } catch (Exception e) { return false; }
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public static boolean removeRecipe(Context ctx, String weekId, Day day, String recipeId) {
@@ -152,18 +157,21 @@ public class MealPlanManager {
             JSONArray arr = w.getJSONObject("days").getJSONArray(day.name());
             JSONArray out = new JSONArray();
             boolean removed = false;
-            for (int i=0;i<arr.length();i++) {
+            for (int i = 0; i < arr.length(); i++) {
                 JSONObject it = arr.getJSONObject(i);
-                if (recipeId.equals(it.optString("id"))) { removed = true; continue; }
+                if (recipeId.equals(it.optString("id"))) {
+                    removed = true;
+                    continue;
+                }
                 out.put(it);
             }
             w.getJSONObject("days").put(day.name(), out);
             if (removed) save(ctx, weeks);
             return removed;
-        } catch (Exception e) { return false; }
+        } catch (Exception e) {
+            return false;
+        }
     }
-
-
 
 
 }

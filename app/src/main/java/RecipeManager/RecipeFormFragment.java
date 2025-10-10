@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
 import RecipeManager.Recipe;
 import RecipeManager.RecipeDataManager;
 
@@ -57,7 +58,7 @@ public class RecipeFormFragment extends Fragment {
 
         String[] categories = {"Breakfast", "Lunch", "Dinner", "Vegetarian", "Dessert"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
-                android.R.layout.simple_dropdown_item_1line,categories);
+                android.R.layout.simple_dropdown_item_1line, categories);
         etCategory.setAdapter(adapter);
         etCategory.setThreshold(0);
         etCategory.setKeyListener(null);

@@ -24,10 +24,15 @@ import RecipeManager.RecipeDataManager;
 
 public class AddRecipeBottomSheet extends BottomSheetDialogFragment {
 
-    public interface OnPick { void onPicked(Recipe recipe); }
+    public interface OnPick {
+        void onPicked(Recipe recipe);
+    }
+
     private final OnPick callback;
 
-    public AddRecipeBottomSheet(OnPick cb) { this.callback = cb; }
+    public AddRecipeBottomSheet(OnPick cb) {
+        this.callback = cb;
+    }
 
     private ArrayAdapter<String> adapter;
     private final List<Recipe> all = new ArrayList<>();
@@ -39,12 +44,14 @@ public class AddRecipeBottomSheet extends BottomSheetDialogFragment {
         View v = inf.inflate(R.layout.bottomsheet_add_recipe, parent, false);
 
         EditText search = v.findViewById(R.id.edSearch);
-        ListView list   = v.findViewById(R.id.listRecipes);
+        ListView list = v.findViewById(R.id.listRecipes);
 
         // Lấy dữ liệu thật từ RecipeManager
         List<Recipe> data = RecipeDataManager.loadAll(requireContext());
-        all.clear(); all.addAll(data);
-        filtered.clear(); filtered.addAll(all);
+        all.clear();
+        all.addAll(data);
+        filtered.clear();
+        filtered.addAll(all);
 
         adapter = new ArrayAdapter<>(requireContext(),
                 android.R.layout.simple_list_item_1,
@@ -58,9 +65,13 @@ public class AddRecipeBottomSheet extends BottomSheetDialogFragment {
         });
 
         search.addTextChangedListener(new TextWatcher() {
-            public void beforeTextChanged(CharSequence s,int a,int b,int c) {}
-            public void afterTextChanged(Editable s) {}
-            public void onTextChanged(CharSequence s,int a,int b,int c) {
+            public void beforeTextChanged(CharSequence s, int a, int b, int c) {
+            }
+
+            public void afterTextChanged(Editable s) {
+            }
+
+            public void onTextChanged(CharSequence s, int a, int b, int c) {
                 filter(s == null ? "" : s.toString());
             }
         });

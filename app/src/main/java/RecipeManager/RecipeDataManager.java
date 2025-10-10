@@ -23,7 +23,9 @@ public class RecipeDataManager {
      *  File helpers
      * --------------------------------------- */
 
-    /** Tạo file rỗng nếu chưa tồn tại. */
+    /**
+     * Tạo file rỗng nếu chưa tồn tại.
+     */
     public static void createJsonFileIfEmpty(Context context) {
         File file = new File(context.getFilesDir(), RECIPES_FILE_NAME);
         if (!file.exists()) {
@@ -31,7 +33,9 @@ public class RecipeDataManager {
         }
     }
 
-    /** Đọc mảng JSON thô từ file. Nếu lỗi trả JSONArray rỗng. */
+    /**
+     * Đọc mảng JSON thô từ file. Nếu lỗi trả JSONArray rỗng.
+     */
     private static JSONArray loadRaw(Context context) {
         StringBuilder sb = new StringBuilder();
         try (FileInputStream fis = context.openFileInput(RECIPES_FILE_NAME);
@@ -45,7 +49,9 @@ public class RecipeDataManager {
         }
     }
 
-    /** Ghi mảng JSON thô ra file. */
+    /**
+     * Ghi mảng JSON thô ra file.
+     */
     private static void saveRaw(Context context, JSONArray arr) {
         try (FileOutputStream fos = context.openFileOutput(RECIPES_FILE_NAME, Context.MODE_PRIVATE)) {
             fos.write(arr.toString().getBytes());
@@ -58,7 +64,9 @@ public class RecipeDataManager {
      *  Public API làm việc với Recipe (khuyên dùng)
      * --------------------------------------- */
 
-    /** Trả toàn bộ danh sách Recipe. */
+    /**
+     * Trả toàn bộ danh sách Recipe.
+     */
     public static List<Recipe> loadAll(Context context) {
         JSONArray raw = loadRaw(context);
         List<Recipe> out = new ArrayList<>();
@@ -70,14 +78,18 @@ public class RecipeDataManager {
         return out;
     }
 
-    /** Ghi đè toàn bộ danh sách Recipe. */
+    /**
+     * Ghi đè toàn bộ danh sách Recipe.
+     */
     public static void saveAll(Context context, List<Recipe> recipes) {
         JSONArray arr = new JSONArray();
         for (Recipe r : recipes) arr.put(recipeToJson(r));
         saveRaw(context, arr);
     }
 
-    /** Lấy Recipe theo id. */
+    /**
+     * Lấy Recipe theo id.
+     */
     public static Recipe getById(Context context, String id) {
         if (id == null) return null;
         JSONArray raw = loadRaw(context);
@@ -89,7 +101,9 @@ public class RecipeDataManager {
         return null;
     }
 
-    /** Thêm Recipe (tự phát id nếu thiếu). */
+    /**
+     * Thêm Recipe (tự phát id nếu thiếu).
+     */
     public static void add(Context context, Recipe recipe) {
         if (recipe == null) return;
         if (recipe.getId() == null || recipe.getId().isEmpty()) {
@@ -100,7 +114,9 @@ public class RecipeDataManager {
         saveRaw(context, arr);
     }
 
-    /** Cập nhật Recipe theo id. */
+    /**
+     * Cập nhật Recipe theo id.
+     */
     public static void updateById(Context context, String id, Recipe updated) {
         if (id == null || updated == null) return;
         JSONArray src = loadRaw(context);
@@ -120,7 +136,9 @@ public class RecipeDataManager {
         saveRaw(context, dst);
     }
 
-    /** Xoá Recipe theo id. */
+    /**
+     * Xoá Recipe theo id.
+     */
     public static void deleteById(Context context, String id) {
         if (id == null) return;
         JSONArray src = loadRaw(context);
@@ -165,59 +183,13 @@ public class RecipeDataManager {
             o.put("imageResId", r.getImage());     // hoặc r.getImageResId() nếu bạn đổi tên getter
             o.put("pinned", r.isPinned());
             o.put("globalIndex", r.getGlobalIndex());
-        } catch (JSONException ignore) {}
+        } catch (JSONException ignore) {
+        }
         return o;
     }
 
-    private static String safe(String s) { return s == null ? "" : s; }
-
-    /* ---------------------------------------
-     *  Legacy API giữ lại để không vỡ chỗ cũ (có thể xoá sau)
-     * --------------------------------------- */
-
-    /** @deprecated dùng {@link #loadAll(Context)} thay vì JSONArray thô. */
-    @Deprecated
-    public static JSONArray loadRecipes(Context context) {
-        return loadRaw(context);
+    private static String safe(String s) {
+        return s == null ? "" : s;
     }
 
-    /** @deprecated dùng {@link #saveAll(Context, List)}. */
-    @Deprecated
-    public static void saveData(Context context, JSONArray jsonArray) {
-        saveRaw(context, jsonArray);
-    }
-
-    /** @deprecated dùng {@link #add(Context, Recipe)}. */
-    @Deprecated
-    public static void addRecipe(Context context, JSONObject recipeJson) {
-        JSONArray recipes = loadRaw(context);
-        recipes.put(recipeJson);
-        saveRaw(context, recipes);
-    }
-
-    /** @deprecated dùng {@link #deleteById(Context, String)}. */
-    @Deprecated
-    public static void deleteRecipe(Context context, int index) {
-        JSONArray recipes = loadRaw(context);
-        JSONArray newList = new JSONArray();
-        for (int i = 0; i < recipes.length(); i++) {
-            if (i != index) {
-                JSONObject obj = recipes.optJSONObject(i);
-                if (obj != null) newList.put(obj);
-            }
-        }
-        saveRaw(context, newList);
-    }
-
-    /** @deprecated dùng {@link #updateById(Context, String, Recipe)}. */
-    @Deprecated
-    public static void updateRecipe(Context context, int index, JSONObject updatedRecipe) {
-        JSONArray recipes = loadRaw(context);
-        try {
-            recipes.put(index, updatedRecipe);
-            saveRaw(context, recipes);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
 }

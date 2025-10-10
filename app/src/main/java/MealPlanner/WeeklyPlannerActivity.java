@@ -4,13 +4,15 @@ import android.os.Bundle;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.recipeapp.R;
+
 import RecipeManager.Recipe;
 import RecipeManager.RecipeDataManager;
-
 
 
 public class WeeklyPlannerActivity extends AppCompatActivity implements WeeklyAdapter.Listener {
@@ -19,7 +21,8 @@ public class WeeklyPlannerActivity extends AppCompatActivity implements WeeklyAd
     private WeeklyAdapter adapter;
     private TextView tvWeek;
 
-    @Override protected void onCreate(Bundle b) {
+    @Override
+    protected void onCreate(Bundle b) {
         super.onCreate(b);
         setContentView(R.layout.activity_weekly_planner);
 
@@ -52,20 +55,24 @@ public class WeeklyPlannerActivity extends AppCompatActivity implements WeeklyAd
     }
 
     // === Adapter callbacks ===
-    @Override public void onAddClicked(Day day) {
+    @Override
+    public void onAddClicked(Day day) {
         new AddRecipeBottomSheet(tag -> {
             boolean ok = MealPlanManager.addRecipe(this, weekId, day, tag);
             if (!ok) Toast.makeText(this, "Đã có món trong ngày", Toast.LENGTH_SHORT).show();
-            adapter.reload(); adapter.notifyDataSetChanged();
+            adapter.reload();
+            adapter.notifyDataSetChanged();
         }).show(getSupportFragmentManager(), "add-recipe");
     }
 
-    @Override public void onRemoveTag(Day day, String recipeId, String title) {
+    @Override
+    public void onRemoveTag(Day day, String recipeId, String title) {
         new AlertDialog.Builder(this)
                 .setMessage("Xoá \"" + title + "\" khỏi " + day.name() + "?")
                 .setPositiveButton("Xoá", (d, w) -> {
                     MealPlanManager.removeRecipe(this, weekId, day, recipeId);
-                    adapter.reload(); adapter.notifyDataSetChanged();
+                    adapter.reload();
+                    adapter.notifyDataSetChanged();
                 })
                 .setNegativeButton("Huỷ", null).show();
     }
