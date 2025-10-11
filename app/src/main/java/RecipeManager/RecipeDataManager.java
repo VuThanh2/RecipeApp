@@ -21,10 +21,6 @@ import java.util.UUID;
 public class RecipeDataManager {
     private static final String RECIPES_FILE_NAME = "recipes.json";
 
-    /* ---------------------------------------
-     *  File helpers
-     * --------------------------------------- */
-
     /** Tạo file rỗng nếu chưa tồn tại. */
     public static void createJsonFileIfEmpty(Context context) {
         File file = new File(context.getFilesDir(), RECIPES_FILE_NAME);
@@ -57,7 +53,7 @@ public class RecipeDataManager {
     }
 
     /** Trả toàn bộ danh sách Recipe. */
-    public static List<Recipe> loadAll(Context context) {
+    public static List<Recipe> LoadAllRecipe(Context context) {
         JSONArray raw = loadRaw(context);
         List<Recipe> out = new ArrayList<>();
         for (int i = 0; i < raw.length(); i++) {
@@ -88,7 +84,7 @@ public class RecipeDataManager {
     }
 
     /** Thêm Recipe (tự phát id nếu thiếu). */
-    public static void add(Context context, Recipe recipe) {
+    public static void AddRecipe(Context context, Recipe recipe) {
         if (recipe == null) return;
         if (recipe.getId() == null || recipe.getId().isEmpty()) {
             recipe.setId(UUID.randomUUID().toString());
@@ -99,7 +95,7 @@ public class RecipeDataManager {
     }
 
     /** Cập nhật Recipe theo id. */
-    public static void updateById(Context context, String id, Recipe updated) {
+    public static void UpdateRecipeById(Context context, String id, Recipe updated) {
         if (id == null || updated == null) return;
         JSONArray src = loadRaw(context);
         JSONArray dst = new JSONArray();
@@ -119,7 +115,7 @@ public class RecipeDataManager {
     }
 
     /** Xoá Recipe theo id. */
-    public static void deleteById(Context context, String id) {
+    public static void DeleteRecipeById(Context context, String id) {
         if (id == null) return;
         JSONArray src = loadRaw(context);
         JSONArray dst = new JSONArray();
@@ -143,6 +139,10 @@ public class RecipeDataManager {
         r.setImage(o.optInt("imageResId", 0)); // or getImageResId()
         r.setPinned(o.optBoolean("pinned", false));
         r.setGlobalIndex(o.optInt("globalIndex", -1));
+        r.setCalories(o.optInt("calories", 0));
+        r.setProtein(o.optInt("protein", 0));
+        r.setCarbs(o.optInt("carbs", 0));
+        r.setFat(o.optInt("fat", 0));
 
         // ---- NEW: structured items ----
         List<Recipe.RecipeItem> items = new ArrayList<>();
@@ -203,6 +203,10 @@ public class RecipeDataManager {
             o.put("imageResId", r.getImage());
             o.put("pinned", r.isPinned());
             o.put("globalIndex", r.getGlobalIndex());
+            o.put("calories", r.getCalories());
+            o.put("protein", r.getProtein());
+            o.put("carbs", r.getCarbs());
+            o.put("fat", r.getFat());
 
             // ---- NEW: write structured items ----
             JSONArray itemsArr = new JSONArray();
@@ -308,7 +312,7 @@ public class RecipeDataManager {
      *  Legacy API giữ lại để không vỡ chỗ cũ (có thể xoá sau)
      * --------------------------------------- */
 
-    /** @deprecated dùng {@link #loadAll(Context)} thay vì JSONArray thô. */
+    /** @deprecated dùng {@link #LoadAllRecipe(Context)} thay vì JSONArray thô. */
     @Deprecated
     public static JSONArray loadRecipes(Context context) {
         return loadRaw(context);
@@ -320,7 +324,7 @@ public class RecipeDataManager {
         saveRaw(context, jsonArray);
     }
 
-    /** @deprecated dùng {@link #add(Context, Recipe)}. */
+    /** @deprecated dùng {@link #AddRecipe(Context, Recipe)}. */
     @Deprecated
     public static void addRecipe(Context context, JSONObject recipeJson) {
         JSONArray recipes = loadRaw(context);
@@ -328,7 +332,7 @@ public class RecipeDataManager {
         saveRaw(context, recipes);
     }
 
-    /** @deprecated dùng {@link #deleteById(Context, String)}. */
+    /** @deprecated dùng {@link #DeleteRecipeById(Context, String)}. */
     @Deprecated
     public static void deleteRecipe(Context context, int index) {
         JSONArray recipes = loadRaw(context);
@@ -342,7 +346,7 @@ public class RecipeDataManager {
         saveRaw(context, newList);
     }
 
-    /** @deprecated dùng {@link #updateById(Context, String, Recipe)}. */
+    /** @deprecated dùng {@link #UpdateRecipeById(Context, String, Recipe)}. */
     @Deprecated
     public static void updateRecipe(Context context, int index, JSONObject updatedRecipe) {
         JSONArray recipes = loadRaw(context);

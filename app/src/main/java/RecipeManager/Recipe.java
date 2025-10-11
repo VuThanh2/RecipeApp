@@ -14,6 +14,9 @@ public class Recipe implements Serializable {
     private boolean pinned;
     private int globalIndex = -1;
     private int calories;
+    private int carbs;
+    private int fat;
+    private int protein;
     private List<RecipeItem> items;
 
     public Recipe() { }
@@ -56,6 +59,12 @@ public class Recipe implements Serializable {
     public void setGlobalIndex(int globalIndex) { this.globalIndex = globalIndex; }
     public int getCalories() { return calories; }
     public void setCalories(int calories) { this.calories = calories; }
+    public int getCarbs() { return carbs; }
+    public void setCarbs(int carbs) { this.carbs = carbs; }
+    public int getFat() { return fat; }
+    public void setFat(int fat) { this.fat = fat; }
+    public int getProtein() { return protein; }
+    public void setProtein(int protein) { this.protein = protein; }
 
     public List<RecipeItem> getItems() {
         if (items == null) items = new ArrayList<>();

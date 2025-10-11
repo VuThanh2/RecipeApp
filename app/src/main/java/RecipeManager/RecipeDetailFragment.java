@@ -67,7 +67,7 @@ public class RecipeDetailFragment extends Fragment {
                 return;
             }
             // ✅ API mới theo id
-            RecipeDataManager.deleteById(requireContext(), recipe.getId());
+            RecipeDataManager.DeleteRecipeById(requireContext(), recipe.getId());
             // Quay lại danh sách; RecipeListFragment sẽ reload ở onResume()
             getParentFragmentManager().popBackStack();
         });

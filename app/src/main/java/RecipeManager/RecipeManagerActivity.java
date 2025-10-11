@@ -30,6 +30,8 @@ public class RecipeManagerActivity extends AppCompatActivity implements RecipeLi
     private String currentUsername;
     private EditText etSearch;
     private RecipeListFragment recipeListFragment;
+    private ImageView filterIcon;
+    private RecipeFilterItem lastFilter = new RecipeFilterItem();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +49,17 @@ public class RecipeManagerActivity extends AppCompatActivity implements RecipeLi
 
         profileIcon.setOnClickListener(v -> {
             PassDataToActivity(UserProfileActivity.class, 1);
+        });
+        filterIcon = findViewById(R.id.ivFilterIcon);
+
+        filterIcon.setOnClickListener(v -> {
+            RecipeFilterDialogFragment dialog = RecipeFilterDialogFragment.newInstance(lastFilter, filterItem -> {
+                        lastFilter = filterItem;
+                        if (recipeListFragment != null) {
+                            recipeListFragment.applyFilter(filterItem);
+                        }
+                    });
+            dialog.show(getSupportFragmentManager(), "filterDialog");
         });
 
         drawerLayout = findViewById(R.id.drawer_layout);

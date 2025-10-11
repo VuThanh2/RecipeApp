@@ -18,8 +18,6 @@ import androidx.fragment.app.FragmentManager;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import RecipeManager.Recipe;
-import RecipeManager.RecipeDataManager;
 
 import com.example.recipeapp.R;
 
@@ -34,21 +32,18 @@ import java.util.Set;
 
 public class RecipeFormFragment extends Fragment {
     private EditText etTitle, etInstructions;
+    private TextInputEditText etCalories, etCarbs, etFat, etProtein;
     private AutoCompleteTextView etCategory;
-    // Part C fields
     private AutoCompleteTextView actvIngredient;
     private TextInputEditText etQuantity;
     private ChipGroup chipGroupItems;
-
     private Button btnSave;
     private ImageView ivRecipeImage;
     private Recipe recipe;
     private int selectedImage = R.drawable.default_background;
     private boolean isPinned = false;
     private ImageView btnPin;
-
     private String currentDietMode = "normal";
-
     // Stage structured items while editing
     private final List<Recipe.RecipeItem> stagedItems = new ArrayList<>();
 
@@ -63,13 +58,16 @@ public class RecipeFormFragment extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_recipe_form, container, false);
 
         etTitle = view.findViewById(R.id.etTitle);
         etCategory = view.findViewById(R.id.etCategory);
         etInstructions = view.findViewById(R.id.etInstructions);
+        etCalories = view.findViewById(R.id.etCalories);
+        etCarbs    = view.findViewById(R.id.etCarbs);
+        etFat      = view.findViewById(R.id.etFat);
+        etProtein  = view.findViewById(R.id.etProtein);
         // Part C views (optional: assume they exist since we removed legacy field)
         actvIngredient = view.findViewById(R.id.actvIngredient);
         etQuantity     = view.findViewById(R.id.etQuantity);
@@ -144,6 +142,16 @@ public class RecipeFormFragment extends Fragment {
             toSave.setImage(selectedImage);
             toSave.setPinned(isPinned);
 
+            int calories = etCalories.getText().toString().isEmpty() ? 0 : Integer.parseInt(etCalories.getText().toString());
+            int carbs = etCarbs.getText().toString().isEmpty() ? 0 : Integer.parseInt(etCarbs.getText().toString());
+            int fat = etFat.getText().toString().isEmpty() ? 0 : Integer.parseInt(etFat.getText().toString());
+            int protein = etProtein.getText().toString().isEmpty() ? 0 : Integer.parseInt(etProtein.getText().toString());
+
+            toSave.setCalories(calories);
+            toSave.setCarbs(carbs);
+            toSave.setFat(fat);
+            toSave.setProtein(protein);
+
             // Build legacy text from chips for compatibility, and persist structured items
             List<Recipe.RecipeItem> itemsToSave = new ArrayList<>(stagedItems);
             String legacy = buildLegacyTextFromItems(itemsToSave);
@@ -152,9 +160,9 @@ public class RecipeFormFragment extends Fragment {
 
             // 3) Gọi API mới theo id
             if (toSave.getId() == null || toSave.getId().isEmpty()) {
-                RecipeDataManager.add(requireContext(), toSave);
+                RecipeDataManager.AddRecipe(requireContext(), toSave);
             } else {
-                RecipeDataManager.updateById(requireContext(), toSave.getId(), toSave);
+                RecipeDataManager.UpdateRecipeById(requireContext(), toSave.getId(), toSave);
             }
 
             // 4) Điều hướng như cũ
@@ -204,6 +212,10 @@ public class RecipeFormFragment extends Fragment {
                 selectedImage = recipe.getImage();
                 ivRecipeImage.setImageResource(selectedImage);
                 isPinned = recipe.isPinned();
+                etCalories.setText(String.valueOf(recipe.getCalories()));
+                etCarbs.setText(String.valueOf(recipe.getCarbs()));
+                etFat.setText(String.valueOf(recipe.getFat()));
+                etProtein.setText(String.valueOf(recipe.getProtein()));
                 updatePinIcon();
 
                 // Hydrate chips from existing items (preferred), else from legacy text
@@ -264,7 +276,7 @@ public class RecipeFormFragment extends Fragment {
 
     private List<String> collectIngredientSuggestions() {
         Set<String> set = new HashSet<>();
-        for (Recipe r : RecipeDataManager.loadAll(requireContext())) {
+        for (Recipe r : RecipeDataManager.LoadAllRecipe(requireContext())) {
             if (r.getItems() != null) {
                 for (Recipe.RecipeItem it : r.getItems()) {
                     if (it.getIngredient() != null && it.getIngredient().getName() != null) {

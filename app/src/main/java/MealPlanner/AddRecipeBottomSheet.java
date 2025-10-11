@@ -44,7 +44,7 @@ public class AddRecipeBottomSheet extends BottomSheetDialogFragment {
         EditText search = v.findViewById(R.id.edSearch);
         ListView list   = v.findViewById(R.id.listRecipes);
 
-        List<Recipe> data = RecipeDataManager.loadAll(requireContext());
+        List<Recipe> data = RecipeDataManager.LoadAllRecipe(requireContext());
         all.clear(); all.addAll(data);
 
         resolveDietContext();
@@ -83,14 +83,14 @@ public class AddRecipeBottomSheet extends BottomSheetDialogFragment {
             public void beforeTextChanged(CharSequence s,int a,int b,int c) {}
             public void afterTextChanged(Editable s) {}
             public void onTextChanged(CharSequence s,int a,int b,int c) {
-                filter(s == null ? "" : s.toString());
+                FilterToFindRecipeName(s == null ? "" : s.toString());
             }
         });
 
         return v;
     }
 
-    private void filter(String q) {
+    private void FilterToFindRecipeName(String q) {
         String query = q == null ? "" : q.toLowerCase().trim();
         filtered.clear();
         for (Recipe r : all) {

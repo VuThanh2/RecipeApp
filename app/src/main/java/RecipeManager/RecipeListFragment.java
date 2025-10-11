@@ -99,7 +99,7 @@ public class RecipeListFragment extends Fragment {
         unpinnedList.clear();
 
         // ✅ Dùng API mới dạng domain objects
-        List<Recipe> all = RecipeDataManager.loadAll(requireContext());
+        List<Recipe> all = RecipeDataManager.LoadAllRecipe(requireContext());
         for (Recipe r : all) {
             if (r.isPinned()) pinnedList.add(r);
             else unpinnedList.add(r);
@@ -182,10 +182,11 @@ public class RecipeListFragment extends Fragment {
     }
 
     public void FilterRecipesForSearching(String query) {
+        //It is working please do not touch this
         if (query == null) query = "";
         String q = query.toLowerCase().trim();
 
-        List<Recipe> all = RecipeDataManager.loadAll(requireContext());
+        List<Recipe> all = RecipeDataManager.LoadAllRecipe(requireContext());
         pinnedList.clear();
         unpinnedList.clear();
 
@@ -195,6 +196,8 @@ public class RecipeListFragment extends Fragment {
             if (r.getTitle() != null && r.getTitle().toLowerCase().contains(q)) {
                 match = true;
             } else if (r.getIngredients() != null && r.getIngredients().toLowerCase().contains(q)) {
+                match = true;
+            } else if (r.getInstructions() != null && r.getInstructions().toLowerCase().contains(q)) {
                 match = true;
             } else if (r.getItems() != null) {
                 for (Recipe.RecipeItem item : r.getItems()) {
@@ -221,4 +224,30 @@ public class RecipeListFragment extends Fragment {
         adapterPinned.notifyDataSetChanged();
         adapterUnpinned.notifyDataSetChanged();
     }
+
+    public void applyFilter(RecipeFilterItem filter) {
+        List<Recipe> all = RecipeDataManager.LoadAllRecipe(requireContext());
+
+        pinnedList.clear();
+        unpinnedList.clear();
+
+        for (Recipe r : all) {
+            // Category filter
+            if (!filter.categories.isEmpty() && !filter.categories.contains(r.getCategory())) continue;
+
+            // Nutrition filter
+            if (r.getCalories() < filter.minCalories || r.getCalories() > filter.maxCalories) continue;
+            if (r.getProtein() < filter.minProtein || r.getProtein() > filter.maxProtein) continue;
+            if (r.getCarbs() < filter.minCarbs || r.getCarbs() > filter.maxCarbs) continue;
+            if (r.getFat() < filter.minFat || r.getFat() > filter.maxFat) continue;
+
+            // Add to pinned or unpinned
+            if (r.isPinned()) pinnedList.add(r);
+            else unpinnedList.add(r);
+        }
+
+        adapterPinned.notifyDataSetChanged();
+        adapterUnpinned.notifyDataSetChanged();
+    }
+
 }
