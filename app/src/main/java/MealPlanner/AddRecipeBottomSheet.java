@@ -1,10 +1,10 @@
 package MealPlanner;
+
 import androidx.appcompat.app.AlertDialog;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import Login.UserDataManager;
-
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -14,21 +14,16 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
 import com.example.recipeapp.R;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import RecipeManager.Recipe;
 import RecipeManager.RecipeDataManager;
 
 public class AddRecipeBottomSheet extends BottomSheetDialogFragment {
-
     public interface OnPick { void onPicked(Recipe recipe); }
     private final OnPick callback;
 
@@ -38,7 +33,6 @@ public class AddRecipeBottomSheet extends BottomSheetDialogFragment {
     private final List<Recipe> all = new ArrayList<>();
     private final List<Recipe> filtered = new ArrayList<>();
 
-    // Part F — diet context (fallback defaults keep legacy behavior)
     private String dietMode = "normal";   // normal | vegan | keto | gluten_free
     private String filterPolicy = "warn"; // warn | hide
 
@@ -50,11 +44,9 @@ public class AddRecipeBottomSheet extends BottomSheetDialogFragment {
         EditText search = v.findViewById(R.id.edSearch);
         ListView list   = v.findViewById(R.id.listRecipes);
 
-        // Lấy dữ liệu thật từ RecipeManager
         List<Recipe> data = RecipeDataManager.loadAll(requireContext());
         all.clear(); all.addAll(data);
 
-        // Resolve diet/policy from Activity Intent if available; defaults keep app working
         resolveDietContext();
 
         filtered.clear();

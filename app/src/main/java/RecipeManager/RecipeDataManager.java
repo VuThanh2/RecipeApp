@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.UUID;
 
 public class RecipeDataManager {
-
     private static final String RECIPES_FILE_NAME = "recipes.json";
 
     /* ---------------------------------------
@@ -56,10 +55,6 @@ public class RecipeDataManager {
             e.printStackTrace();
         }
     }
-
-    /* ---------------------------------------
-     *  Public API làm việc với Recipe (khuyên dùng)
-     * --------------------------------------- */
 
     /** Trả toàn bộ danh sách Recipe. */
     public static List<Recipe> loadAll(Context context) {
@@ -135,11 +130,6 @@ public class RecipeDataManager {
         }
         saveRaw(context, dst);
     }
-
-    /* ---------------------------------------
-     *  JSON <-> Recipe helpers (thuần org.json)
-     *  NOTE: chỉnh key/field cho khớp với class Recipe của bạn
-     * --------------------------------------- */
 
     private static Recipe jsonToRecipe(JSONObject o) {
         if (o == null) return null;

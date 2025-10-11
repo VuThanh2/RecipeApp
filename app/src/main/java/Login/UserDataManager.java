@@ -38,7 +38,7 @@ public class UserDataManager {
         for (int i = 0; i < users.length(); i++) {
             JSONObject o = users.optJSONObject(i);
             if (o == null) continue;
-            User u = User.fromJson(o); // applies legacy mapping & sanitize
+            User u = User.fromJson(o);
             try {
                 users.put(i, u.toJson());
             } catch (Exception e) {
@@ -133,34 +133,6 @@ public class UserDataManager {
             newUser.put(KEY_FOOD_PREF, "");
             // new normalized field
             newUser.put(KEY_DIET_MODE, MODE_NORMAL);
-            users.put(newUser);
-            saveUsers(context, users);
-            return true;
-        } catch (JSONException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    public static boolean registerUser(Context context, String username, String password, String dietMode) {
-        JSONArray users = loadUsers(context);
-
-        for (int i = 0; i < users.length(); i++) {
-            try {
-                JSONObject user = users.getJSONObject(i);
-                if (username.equalsIgnoreCase(user.optString(KEY_USERNAME))) return false;
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-
-        JSONObject newUser = new JSONObject();
-        try {
-            newUser.put(KEY_USERNAME, username);
-            newUser.put(KEY_PASSWORD, password);
-            // keep legacy field synchronized for old UI screens, optional
-            newUser.put(KEY_FOOD_PREF, "");
-            newUser.put(KEY_DIET_MODE, sanitizeDietMode(dietMode));
             users.put(newUser);
             saveUsers(context, users);
             return true;

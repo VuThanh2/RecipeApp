@@ -11,10 +11,7 @@ import com.example.recipeapp.R;
 import RecipeManager.Recipe;
 import RecipeManager.RecipeDataManager;
 
-
-
 public class WeeklyPlannerActivity extends AppCompatActivity implements WeeklyAdapter.Listener {
-
     private String weekId;
     private WeeklyAdapter adapter;
     private TextView tvWeek;
@@ -51,7 +48,6 @@ public class WeeklyPlannerActivity extends AppCompatActivity implements WeeklyAd
         );
     }
 
-    // === Adapter callbacks ===
     @Override public void onAddClicked(Day day) {
         new AddRecipeBottomSheet(tag -> {
             boolean ok = MealPlanManager.addRecipe(this, weekId, day, tag);
@@ -69,6 +65,4 @@ public class WeeklyPlannerActivity extends AppCompatActivity implements WeeklyAd
                 })
                 .setNegativeButton("Huỷ", null).show();
     }
-
-
 }

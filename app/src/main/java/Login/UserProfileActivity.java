@@ -15,9 +15,7 @@ import android.widget.ArrayAdapter;
 public class UserProfileActivity extends AppCompatActivity {
     private TextView textUsername;
     private EditText editFoodPreference;
-    // Optional: if layout uses AutoCompleteTextView for diet mode
     private AutoCompleteTextView dietInput;
-    // Labels shown to user vs values stored
     private final String[] dietLabels = new String[] { "Normal", "Vegan", "Keto", "Gluten-free" };
     private final String[] dietValues = new String[] { "normal", "vegan", "keto", "gluten_free" };
     private ImageView imageAvatar;
@@ -34,30 +32,29 @@ public class UserProfileActivity extends AppCompatActivity {
         imageAvatar = findViewById(R.id.imageAvatar);
         buttonSaveProfile = findViewById(R.id.buttonSaveProfile);
         buttonLogout = findViewById(R.id.buttonLogout);
+        dietInput = findViewById(R.id.etDietMode);
+
+        if (dietInput != null) {
+            ArrayAdapter<String> dietAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, dietLabels);
+            dietInput.setAdapter(dietAdapter);
+            dietInput.setOnFocusChangeListener((v, hasFocus) -> {
+                if (hasFocus) dietInput.showDropDown();
+            });
+            // Default selection
+            dietInput.setText(dietLabels[0], false);
+        }
 
         Intent intent = getIntent();
         currentUsername = intent.getStringExtra("username");
         textUsername.setText(currentUsername);
 
-        // Prefer normalized dietMode over legacy foodPreference
         String currentDiet = UserDataManager.getDietMode(this, currentUsername);
         String display = mapDietValueToLabel(currentDiet);
-        editFoodPreference.setText(display);
-
-        // If the layout uses AutoCompleteTextView, wire the dropdown
-        if (editFoodPreference instanceof AutoCompleteTextView) {
-            dietInput = (AutoCompleteTextView) editFoodPreference;
-            ArrayAdapter<String> dietAdapter =
-                    new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, dietLabels);
-            dietInput.setAdapter(dietAdapter);
-            dietInput.setOnFocusChangeListener((v, hasFocus) -> {
-                if (hasFocus) dietInput.showDropDown();
-            });
-        }
+        dietInput.setText(display, false);
 
         buttonSaveProfile.setOnClickListener(v -> {
-            String label = editFoodPreference.getText().toString().trim();
-            String diet = mapLabelToDietValue(label); // normalize label → value
+            String selectedLabel = dietInput.getText().toString().trim();
+            String diet = mapLabelToDietValue(selectedLabel);
             UserDataManager.updateDietMode(this, currentUsername, diet);
             Toast.makeText(this, "Profile updated!", Toast.LENGTH_SHORT).show();
         });
@@ -88,7 +85,6 @@ public class UserProfileActivity extends AppCompatActivity {
         for (int i = 0; i < dietLabels.length; i++) {
             if (dietLabels[i].equalsIgnoreCase(s)) return dietValues[i];
         }
-        // Accept free text and try to interpret common keywords
         String l = s.toLowerCase();
         if (l.contains("vegan") || l.contains("thuần chay") || l.contains("ăn chay")) return "vegan";
         if (l.contains("keto")) return "keto";

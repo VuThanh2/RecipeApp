@@ -27,8 +27,6 @@ public class RecipeListFragment extends Fragment {
     private final List<Recipe> unpinnedList = new ArrayList<>();
     private FloatingActionButton fab;
     private OnRecipeSelectedListener listener;
-
-    // Part F: diet context (defaults keep legacy behavior if nothing is passed)
     private String dietMode = "normal";      // normal | vegan | keto | gluten_free
     private String filterPolicy = "warn";    // warn | hide
 
@@ -132,12 +130,12 @@ public class RecipeListFragment extends Fragment {
             if (policyExtra != null) filterPolicy = "hide".equalsIgnoreCase(policyExtra) ? "hide" : "warn";
         }
         // Diet mode comes from UserDataManager if username is available; else default "normal"
-        try {
-            dietMode = UserDataManager.getDietMode(requireContext(), username == null ? "" : username);
-            if (dietMode == null || dietMode.trim().isEmpty()) dietMode = "normal";
-        } catch (Throwable t) {
+        if (username != null && !username.isEmpty()) {
+            dietMode = UserDataManager.getDietMode(requireContext(), username);
+        } else {
             dietMode = "normal";
         }
+
     }
 
     private void applyDietContextToAdapters() {
@@ -181,5 +179,46 @@ public class RecipeListFragment extends Fragment {
             for (String t : ing.getTags()) if (forbidden.contains(t)) return false;
         }
         return true;
+    }
+
+    public void FilterRecipesForSearching(String query) {
+        if (query == null) query = "";
+        String q = query.toLowerCase().trim();
+
+        List<Recipe> all = RecipeDataManager.loadAll(requireContext());
+        pinnedList.clear();
+        unpinnedList.clear();
+
+        for (Recipe r : all) {
+            boolean match = false;
+
+            if (r.getTitle() != null && r.getTitle().toLowerCase().contains(q)) {
+                match = true;
+            } else if (r.getIngredients() != null && r.getIngredients().toLowerCase().contains(q)) {
+                match = true;
+            } else if (r.getItems() != null) {
+                for (Recipe.RecipeItem item : r.getItems()) {
+                    if (item.getIngredient() != null &&
+                            item.getIngredient().getName() != null &&
+                            item.getIngredient().getName().toLowerCase().contains(q)) {
+                        match = true;
+                        break;
+                    }
+                }
+            }
+
+            if (match) {
+                if (r.isPinned()) pinnedList.add(r);
+                else unpinnedList.add(r);
+            }
+        }
+
+        if ("hide".equalsIgnoreCase(filterPolicy)) {
+            filterListInPlace(pinnedList, dietMode);
+            filterListInPlace(unpinnedList, dietMode);
+        }
+
+        adapterPinned.notifyDataSetChanged();
+        adapterUnpinned.notifyDataSetChanged();
     }
 }

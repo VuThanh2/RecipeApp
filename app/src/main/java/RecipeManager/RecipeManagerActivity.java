@@ -2,8 +2,10 @@ package RecipeManager;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -20,15 +22,14 @@ import Login.LoginActivity;
 import Login.UserProfileActivity;
 import MealPlanner.WeeklyPlannerActivity;
 
-public class RecipeManagerActivity extends AppCompatActivity
-        implements RecipeListFragment.OnRecipeSelectedListener {
-
+public class RecipeManagerActivity extends AppCompatActivity implements RecipeListFragment.OnRecipeSelectedListener {
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private Toolbar toolbar;
-    private TextView toolbarTitle;
     private ImageView profileIcon;
     private String currentUsername;
+    private EditText etSearch;
+    private RecipeListFragment recipeListFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,12 +42,8 @@ public class RecipeManagerActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
 
-        toolbarTitle = findViewById(R.id.tvToolbarTitle);
         profileIcon = findViewById(R.id.ivProfileIcon);
-
-        toolbarTitle.setOnClickListener(v -> {
-            PassDataToActivity(RecipeManagerActivity.class, 2);
-        });
+        etSearch = findViewById(R.id.etSearch);
 
         profileIcon.setOnClickListener(v -> {
             PassDataToActivity(UserProfileActivity.class, 1);
@@ -67,7 +64,7 @@ public class RecipeManagerActivity extends AppCompatActivity
             int id = item.getItemId();
 
             if (id == R.id.nav_home) {
-                PassDataToActivity(RecipeManagerActivity.class, 1);
+                PassDataToActivity(RecipeManagerActivity.class, 4);
             } else if (id == R.id.nav_logout) {
                 Toast.makeText(this, "Logged out", Toast.LENGTH_SHORT).show();
                 PassDataToActivity(LoginActivity.class, 4);
@@ -80,25 +77,33 @@ public class RecipeManagerActivity extends AppCompatActivity
         });
 
         if (savedInstanceState == null) {
+            recipeListFragment = new RecipeListFragment();
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, new RecipeListFragment())
+                    .replace(R.id.fragment_container, recipeListFragment)
                     .commit();
+        } else {
+            recipeListFragment = (RecipeListFragment)
+                    getSupportFragmentManager().findFragmentById(R.id.fragment_container);
         }
+        etSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (recipeListFragment != null) {
+                    recipeListFragment.FilterRecipesForSearching(s.toString());
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
     }
 
-    /**
-     * Callback từ RecipeListFragment.
-     * index đã lỗi thời (list giờ theo id); bỏ qua và mở Detail bằng recipe.
-     */
     @Override
-    public void onRecipeSelected(Recipe recipe, int index /*deprecated*/) {
-        // Nếu bạn đã refactor RecipeDetailFragment như mình đề xuất:
+    public void onRecipeSelected(Recipe recipe, int index) {
         RecipeDetailFragment detailFragment = RecipeDetailFragment.newInstance(recipe);
-
-        // Nếu muốn luôn lấy bản mới nhất từ storage theo id, bạn có thể:
-        // Recipe fresh = (recipe != null && recipe.getId() != null)
-        //     ? RecipeDataManager.getById(this, recipe.getId()) : null;
-        // RecipeDetailFragment detailFragment = RecipeDetailFragment.newInstance(fresh != null ? fresh : recipe);
 
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, detailFragment)

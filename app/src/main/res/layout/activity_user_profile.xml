@@ -60,7 +60,7 @@
         app:endIconMode="dropdown_menu">
 
         <AutoCompleteTextView
-            android:id="@+id/etCategory"
+            android:id="@+id/etDietMode"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:paddingStart="12dp"

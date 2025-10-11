@@ -17,11 +17,6 @@ public class RegisterActivity extends AppCompatActivity {
     Button registerButton;
     private int normalColor, errorColor;
 
-    AutoCompleteTextView dietInput; // optional: only if layout has R.id.editDietMode
-    // Labels shown to user vs values stored
-    private final String[] dietLabels = new String[] { "Normal", "Vegan", "Keto", "Gluten-free" };
-    private final String[] dietValues = new String[] { "normal", "vegan", "keto", "gluten_free" };
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,19 +39,6 @@ public class RegisterActivity extends AppCompatActivity {
         ResetWhenTypingAgain(usernameLayout, usernameInput);
         ResetWhenTypingAgain(passwordLayout, passwordInput);
         ResetWhenTypingAgain(confirmPasswordLayout, confirmPasswordInput);
-
-        // Optional diet picker wiring (safe if not present in layout)
-        dietInput = findViewById(R.id.editDietMode); // e.g., an AutoCompleteTextView in activity_register.xml
-        if (dietInput != null) {
-            ArrayAdapter<String> dietAdapter =
-                    new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, dietLabels);
-            dietInput.setAdapter(dietAdapter);
-            dietInput.setOnFocusChangeListener((v, hasFocus) -> {
-                if (hasFocus) dietInput.showDropDown();
-            });
-            // Default selection
-            dietInput.setText(dietLabels[0], false);
-        }
     }
 
     private void ValidateAndRegister() {
@@ -83,8 +65,8 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        String diet = selectedDietMode(); // "normal" / "vegan" / "keto" / "gluten_free"
-        boolean success = UserDataManager.registerUser(this, username, password, diet);
+
+        boolean success = UserDataManager.registerUser(this, username, password);
         if (success) {
             Toast.makeText(this, "Account created successfully!", Toast.LENGTH_SHORT).show();
             finish();
@@ -120,19 +102,5 @@ public class RegisterActivity extends AppCompatActivity {
                 layout.setError(null);
             }
         });
-    }
-
-    private String selectedDietMode() {
-        if (dietInput == null) return "normal";
-        String label = String.valueOf(dietInput.getText()).trim();
-        for (int i = 0; i < dietLabels.length; i++) {
-            if (dietLabels[i].equalsIgnoreCase(label)) return dietValues[i];
-        }
-        // if user typed a custom string, keep it robust by mapping keywords
-        String s = label.toLowerCase();
-        if (s.contains("vegan") || s.contains("thuần chay") || s.contains("ăn chay")) return "vegan";
-        if (s.contains("keto")) return "keto";
-        if (s.contains("gluten")) return "gluten_free";
-        return "normal";
     }
 }
