@@ -1,6 +1,8 @@
 package MealPlanner;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,6 +26,8 @@ public class WeeklyPlannerActivity extends AppCompatActivity implements WeeklyAd
         RecyclerView rv = findViewById(R.id.rvWeek);
         ImageButton prev = findViewById(R.id.btnPrev);
         ImageButton next = findViewById(R.id.btnNext);
+        Button statisticButton = findViewById(R.id.btnStatistic);
+        ImageButton shoppingList = findViewById(R.id.btnShoppingList);
 
         weekId = MealPlanManager.currentWeekId();
         tvWeek.setText(weekId);
@@ -43,16 +47,25 @@ public class WeeklyPlannerActivity extends AppCompatActivity implements WeeklyAd
             adapter.setWeekId(weekId);
         });
 
-        findViewById(R.id.btnStatistic).setOnClickListener(v ->
-                Toast.makeText(this, "Statistic (stub)", Toast.LENGTH_SHORT).show()
-        );
+        statisticButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, StatisticsActivity.class);
+            intent.putExtra("Week Id", weekId);
+            startActivity(intent);
+        });
+
+        shoppingList.setOnClickListener(v -> {
+            Intent intent = new Intent(this, ShoppingListActivity.class);
+            intent.putExtra("Week Id", weekId);
+            startActivity(intent);
+        });
     }
 
     @Override public void onAddClicked(Day day) {
         new AddRecipeBottomSheet(tag -> {
             boolean ok = MealPlanManager.addRecipe(this, weekId, day, tag);
             if (!ok) Toast.makeText(this, "Đã có món trong ngày", Toast.LENGTH_SHORT).show();
-            adapter.reload(); adapter.notifyDataSetChanged();
+            adapter.reload();
+            adapter.notifyDataSetChanged();
         }).show(getSupportFragmentManager(), "add-recipe");
     }
 
@@ -61,7 +74,8 @@ public class WeeklyPlannerActivity extends AppCompatActivity implements WeeklyAd
                 .setMessage("Xoá \"" + title + "\" khỏi " + day.name() + "?")
                 .setPositiveButton("Xoá", (d, w) -> {
                     MealPlanManager.removeRecipe(this, weekId, day, recipeId);
-                    adapter.reload(); adapter.notifyDataSetChanged();
+                    adapter.reload();
+                    adapter.notifyDataSetChanged();
                 })
                 .setNegativeButton("Huỷ", null).show();
     }

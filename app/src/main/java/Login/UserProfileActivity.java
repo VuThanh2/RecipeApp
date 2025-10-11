@@ -14,7 +14,6 @@ import android.widget.ArrayAdapter;
 
 public class UserProfileActivity extends AppCompatActivity {
     private TextView textUsername;
-    private EditText editFoodPreference;
     private AutoCompleteTextView dietInput;
     private final String[] dietLabels = new String[] { "Normal", "Vegan", "Keto", "Gluten-free" };
     private final String[] dietValues = new String[] { "normal", "vegan", "keto", "gluten_free" };
@@ -28,7 +27,6 @@ public class UserProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_user_profile);
 
         textUsername = findViewById(R.id.textUsername);
-        editFoodPreference = findViewById(R.id.editFoodPreference);
         imageAvatar = findViewById(R.id.imageAvatar);
         buttonSaveProfile = findViewById(R.id.buttonSaveProfile);
         buttonLogout = findViewById(R.id.buttonLogout);

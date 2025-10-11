@@ -72,7 +72,7 @@ public class RecipeDataManager {
     }
 
     /** Lấy Recipe theo id. */
-    public static Recipe getById(Context context, String id) {
+    public static Recipe GetRecipeById(Context context, String id) {
         if (id == null) return null;
         JSONArray raw = loadRaw(context);
         for (int i = 0; i < raw.length(); i++) {

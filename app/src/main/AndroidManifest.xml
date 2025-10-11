@@ -11,7 +11,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.RecipeApp">
-
+        <activity
+            android:name="MealPlanner.StatisticsActivity"
+            android:exported="false" />
         <activity
             android:name="Login.LoginActivity"
             android:exported="true">
@@ -21,15 +23,24 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-
-        <activity android:name="Login.RegisterActivity" android:exported="false" />
-        <activity android:name="Login.ForgotPasswordActivity" android:exported="false" />
-        <activity android:name="Login.UserProfileActivity" android:exported="false" />
-        <activity android:name="RecipeManager.RecipeManagerActivity" android:exported="false" />
-        <activity android:name="MealPlanner.WeeklyPlannerActivity" android:exported="false" />
+        <activity
+            android:name="Login.RegisterActivity"
+            android:exported="false" />
+        <activity
+            android:name="Login.ForgotPasswordActivity"
+            android:exported="false" />
+        <activity
+            android:name="Login.UserProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name="RecipeManager.RecipeManagerActivity"
+            android:exported="false" />
+        <activity
+            android:name="MealPlanner.WeeklyPlannerActivity"
+            android:exported="false" />
+        <activity
+            android:name="MealPlanner.ShoppingListActivity"
+            android:exported="false" />
     </application>
-<!--    <application ...>-->
-<!--    <activity android:name="meal.WeeklyPlannerActivity"/>-->
-<!--</application>-->
+
 </manifest>

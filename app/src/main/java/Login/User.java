@@ -7,8 +7,7 @@ public class User {
     // ---- JSON keys (kept literal to avoid coupling to UserDataManager internals)
     public static final String KEY_USERNAME     = "username";
     public static final String KEY_PASSWORD     = "password";
-    public static final String KEY_FOOD_PREF    = "foodPreference"; // legacy
-    public static final String KEY_DIET_MODE    = "dietMode";       // new
+    public static final String KEY_DIET_MODE    = "dietMode";
 
     // ---- Diet modes (same set used in UserDataManager)
     public static final String MODE_NORMAL       = "normal";
@@ -18,8 +17,7 @@ public class User {
 
     private String username;
     private String password;       // NOTE: kept for compatibility; consider hashing later
-    private String dietMode;       // normalized value
-    private String foodPreference; // legacy/raw text (optional; can be empty)
+    private String dietMode;
 
     public User() {}
 
@@ -27,10 +25,8 @@ public class User {
         this.username = username;
         this.password = password;
         this.dietMode = sanitizeDietMode(dietMode);
-        this.foodPreference = "";
     }
 
-    // ---- Getters/Setters
     public String getUsername() { return username; }
     public void setUsername(String username) { this.username = username; }
 
@@ -40,19 +36,15 @@ public class User {
     public String getDietMode() { return dietMode; }
     public void setDietMode(String dietMode) { this.dietMode = sanitizeDietMode(dietMode); }
 
-    public String getFoodPreference() { return foodPreference; }
-    public void setFoodPreference(String foodPreference) { this.foodPreference = foodPreference; }
-
     // ---- JSON bridge
     public static User fromJson(JSONObject j) {
         User u = new User();
         u.username       = j.optString(KEY_USERNAME, "");
         u.password       = j.optString(KEY_PASSWORD, "");
-        u.foodPreference = j.optString(KEY_FOOD_PREF, "");
 
         String dm = j.optString(KEY_DIET_MODE, null);
         if (!isValidDietMode(dm)) {
-            dm = mapFoodPreference(u.foodPreference);
+            dm = MapDietMode(u.dietMode);
         }
         u.dietMode = sanitizeDietMode(dm);
         return u;
@@ -63,7 +55,6 @@ public class User {
         try {
             j.put(KEY_USERNAME, username == null ? "" : username);
             j.put(KEY_PASSWORD, password == null ? "" : password);
-            j.put(KEY_FOOD_PREF, foodPreference == null ? "" : foodPreference);
             j.put(KEY_DIET_MODE, sanitizeDietMode(dietMode));
         } catch (JSONException e) {
             // swallow or log as needed
@@ -83,7 +74,7 @@ public class User {
         return isValidDietMode(dietMode) ? dietMode.trim().toLowerCase() : MODE_NORMAL;
     }
 
-    private static String mapFoodPreference(String freeText) {
+    private static String MapDietMode(String freeText) {
         if (freeText == null) return MODE_NORMAL;
         String s = freeText.trim().toLowerCase();
         if (s.isEmpty()) return MODE_NORMAL;

@@ -84,22 +84,25 @@
             <AutoCompleteTextView
                 android:id="@+id/actvIngredient"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="50dp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
                 android:hint="Add ingredient..."
+                android:textSize="16sp"
                 android:imeOptions="actionDone"
                 android:inputType="text" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Part C: Quantity input -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="12dp"
             app:boxBackgroundMode="outline"
             app:boxCornerRadiusTopStart="8dp"
             app:boxCornerRadiusTopEnd="8dp"
             app:boxCornerRadiusBottomStart="8dp"
-            app:boxCornerRadiusBottomEnd="8dp">
+            app:boxCornerRadiusBottomEnd="8dp"
+            app:endIconMode="clear_text">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etQuantity"
@@ -108,12 +111,11 @@
                 android:hint="Quantity (e.g. 200g)" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Part C: Chips container -->
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/chipGroupItems"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="2dp"
             app:singleLine="false"
             app:singleSelection="false"
             app:chipSpacing="8dp" />

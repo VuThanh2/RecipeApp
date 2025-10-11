@@ -5,13 +5,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.*;
-import Login.User;
+
 import static Login.User.*;
 
 public class UserDataManager {
     private static final String USERS_FILE_NAME = "users.json";
 
-    private static String mapFoodPreference(String freeText) {
+    private static String MapDietMode(String freeText) {
         if (freeText == null) return MODE_NORMAL;
         String s = freeText.trim().toLowerCase();
         if (s.isEmpty()) return MODE_NORMAL;
@@ -33,7 +33,6 @@ public class UserDataManager {
         return MODE_NORMAL;
     }
 
-    // Ensure every user object has a valid dietMode (derived from legacy foodPreference if needed)
     private static void normalizeUsers(JSONArray users) {
         for (int i = 0; i < users.length(); i++) {
             JSONObject o = users.optJSONObject(i);
@@ -129,8 +128,6 @@ public class UserDataManager {
         try {
             newUser.put(KEY_USERNAME, username);
             newUser.put(KEY_PASSWORD, password);
-            // legacy field kept for backward-compat (can be removed later)
-            newUser.put(KEY_FOOD_PREF, "");
             // new normalized field
             newUser.put(KEY_DIET_MODE, MODE_NORMAL);
             users.put(newUser);
@@ -175,56 +172,15 @@ public class UserDataManager {
         return false;
     }
 
-    public static String getFoodPreference(Context context, String username) {
-        JSONArray users = loadUsers(context);
-        for (int i = 0; i < users.length(); i++) {
-            try {
-                JSONObject user = users.getJSONObject(i);
-                if (username.equals(user.optString(KEY_USERNAME))) {
-                    // Prefer dietMode going forward
-                    String d = user.optString(KEY_DIET_MODE, null);
-                    if (isValidDietMode(d)) return d;
-                    // Fallback to legacy and map
-                    String legacy = user.optString(KEY_FOOD_PREF, "");
-                    return mapFoodPreference(legacy);
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-        return "";
-    }
-
-    public static void updateFoodPreference(Context context, String username, String preference) {
-        JSONArray users = loadUsers(context);
-        for (int i = 0; i < users.length(); i++) {
-            try {
-                JSONObject user = users.getJSONObject(i);
-                if (username.equals(user.optString(KEY_USERNAME))) {
-                    // Keep legacy field for compatibility
-                    user.put(KEY_FOOD_PREF, preference == null ? "" : preference);
-                    // And write normalized value into the new field
-                    user.put(KEY_DIET_MODE, sanitizeDietMode(mapFoodPreference(preference)));
-                    saveUsers(context, users);
-                    return;
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
     public static String getDietMode(Context context, String username) {
         JSONArray users = loadUsers(context);
         for (int i = 0; i < users.length(); i++) {
             try {
                 JSONObject user = users.getJSONObject(i);
                 if (username.equals(user.optString(KEY_USERNAME))) {
-                    // prefer new field
                     String d = user.optString(KEY_DIET_MODE, null);
                     if (!isValidDietMode(d)) {
-                        // derive from legacy if needed, then persist
-                        d = mapFoodPreference(user.optString(KEY_FOOD_PREF, ""));
+                        d = MapDietMode(user.optString(KEY_DIET_MODE, ""));
                         d = sanitizeDietMode(d);
                         user.put(KEY_DIET_MODE, d);
                         saveUsers(context, users);
@@ -246,8 +202,6 @@ public class UserDataManager {
                 if (username.equals(user.optString(KEY_USERNAME))) {
                     String normalized = sanitizeDietMode(dietMode);
                     user.put(KEY_DIET_MODE, normalized);
-                    // keep legacy field in sync (optional; safe to remove later)
-                    user.put(KEY_FOOD_PREF, normalized);
                     saveUsers(context, users);
                     return true;
                 }
