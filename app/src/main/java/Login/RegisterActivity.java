@@ -31,7 +31,7 @@ public class RegisterActivity extends AppCompatActivity {
         confirmPasswordInput = findViewById(R.id.editConfirmPassword);
         registerButton = findViewById(R.id.btnRegister);
 
-        normalColor = ContextCompat.getColor(this, R.color.purple);
+        normalColor = ContextCompat.getColor(this, R.color.white);
         errorColor = ContextCompat.getColor(this, android.R.color.holo_red_dark);
 
         registerButton.setOnClickListener(v -> ValidateAndRegister());

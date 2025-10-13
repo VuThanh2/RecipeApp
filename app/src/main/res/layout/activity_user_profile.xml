@@ -52,7 +52,9 @@
         android:text="Save Profile"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"/>
+        android:layout_marginTop="16dp"
+        android:backgroundTint="@color/green_primary"
+        android:textColor="@color/white"/>
 
     <Button
         android:id="@+id/buttonLogout"
@@ -60,6 +62,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:backgroundTint="#CCCCCC"
-        android:textColor="#000000" />
+        android:backgroundTint="@color/green_primary"
+        android:textColor="@color/white" />
 </LinearLayout>

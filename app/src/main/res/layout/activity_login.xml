@@ -5,7 +5,7 @@
     android:orientation="vertical"
     android:padding="24dp"
     android:gravity="center_vertical"
-    android:background="?android:attr/windowBackground">
+    android:background="@color/green_primary">
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/layoutUsername"
@@ -13,7 +13,8 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="12dp"
         app:boxBackgroundMode="outline"
-        app:boxStrokeColor="?attr/colorPrimary"
+        app:boxStrokeColor="@android:color/white"
+        app:hintTextColor="@android:color/white"
         app:boxCornerRadiusTopStart="8dp"
         app:boxCornerRadiusTopEnd="8dp"
         app:boxCornerRadiusBottomStart="8dp"
@@ -28,7 +29,8 @@
             android:drawableStart="@android:drawable/ic_menu_edit"
             android:drawablePadding="8dp"
             android:padding="12dp"
-            android:textColorHint="@android:color/darker_gray" />
+            android:textColor="@android:color/white"
+            android:textColorHint="@android:color/white" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -36,7 +38,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:boxBackgroundMode="outline"
-        app:boxStrokeColor="?attr/colorPrimary"
+        app:boxStrokeColor="@android:color/white"
+        app:hintTextColor="@android:color/white"
         app:boxCornerRadiusTopStart="8dp"
         app:boxCornerRadiusTopEnd="8dp"
         app:boxCornerRadiusBottomStart="8dp"
@@ -51,7 +54,8 @@
             android:drawableStart="@android:drawable/ic_lock_idle_lock"
             android:drawablePadding="8dp"
             android:padding="12dp"
-            android:textColorHint="@android:color/darker_gray" />
+            android:textColor="@android:color/white"
+            android:textColorHint="@android:color/white" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <Button
@@ -61,8 +65,8 @@
         android:text="Login"
         android:textAllCaps="false"
         android:layout_marginTop="20dp"
-        android:backgroundTint="?attr/colorPrimary"
-        android:textColor="@android:color/white"
+        android:backgroundTint="@color/white"
+        android:textColor="@color/green_primary"
         android:padding="12dp" />
 
     <TextView
@@ -71,7 +75,7 @@
         android:layout_height="wrap_content"
         android:text="Create an account"
         android:textAlignment="center"
-        android:textColor="@android:color/holo_blue_dark"
+        android:textColor="@android:color/white"
         android:layout_marginTop="16dp" />
 
     <TextView
@@ -80,6 +84,6 @@
         android:layout_height="wrap_content"
         android:text="Forgot password?"
         android:textAlignment="center"
-        android:textColor="@android:color/holo_blue_dark"
+        android:textColor="@android:color/white"
         android:layout_marginTop="8dp" />
 </LinearLayout>

@@ -51,6 +51,7 @@
             android:id="@+id/btnEdit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:backgroundTint="@color/green_primary"
             android:text="Edit"/>
 
         <Button
@@ -58,6 +59,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Delete"
+            android:backgroundTint="@color/green_primary"
             android:layout_marginTop="8dp"/>
     </LinearLayout>
 </ScrollView>

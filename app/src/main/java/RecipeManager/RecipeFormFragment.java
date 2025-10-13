@@ -3,7 +3,6 @@ package RecipeManager;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import Login.UserDataManager;
-
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -12,39 +11,36 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-
 import com.example.recipeapp.R;
-
 import android.view.inputmethod.EditorInfo;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 public class RecipeFormFragment extends Fragment {
-    private EditText etTitle, etInstructions;
-    private TextInputEditText etCalories, etCarbs, etFat, etProtein;
-    private AutoCompleteTextView etCategory;
-    private AutoCompleteTextView actvIngredient;
-    private TextInputEditText etQuantity;
+    private TextInputLayout layoutIngredient, layoutQuantity;
+    private TextInputEditText etTitle, etInstructions, etQuantity, etCalories, etCarbs, etFat, etProtein;
+    private AutoCompleteTextView actvCategory, actvIngredient;
     private ChipGroup chipGroupItems;
     private Button btnSave;
-    private ImageView ivRecipeImage;
+    private ImageView ivRecipeImage, btnPin;
     private Recipe recipe;
     private int selectedImage = R.drawable.default_background;
     private boolean isPinned = false;
-    private ImageView btnPin;
     private String currentDietMode = "normal";
-    // Stage structured items while editing
+    private int normalColor, errorColor;
+
     private final List<Recipe.RecipeItem> stagedItems = new ArrayList<>();
 
     public static RecipeFormFragment newInstance(@Nullable Recipe recipe) {
@@ -55,71 +51,102 @@ public class RecipeFormFragment extends Fragment {
         return f;
     }
 
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_recipe_form, container, false);
 
         etTitle = view.findViewById(R.id.etTitle);
-        etCategory = view.findViewById(R.id.etCategory);
+        actvCategory = view.findViewById(R.id.etCategory);
         etInstructions = view.findViewById(R.id.etInstructions);
         etCalories = view.findViewById(R.id.etCalories);
-        etCarbs    = view.findViewById(R.id.etCarbs);
-        etFat      = view.findViewById(R.id.etFat);
-        etProtein  = view.findViewById(R.id.etProtein);
-        // Part C views (optional: assume they exist since we removed legacy field)
+        etCarbs = view.findViewById(R.id.etCarbs);
+        etFat = view.findViewById(R.id.etFat);
+        etProtein = view.findViewById(R.id.etProtein);
         actvIngredient = view.findViewById(R.id.actvIngredient);
-        etQuantity     = view.findViewById(R.id.etQuantity);
+        etQuantity = view.findViewById(R.id.etQuantity);
         chipGroupItems = view.findViewById(R.id.chipGroupItems);
+
+        layoutIngredient = view.findViewById(R.id.layoutIngredient);
+        layoutQuantity = view.findViewById(R.id.layoutQuantity);
 
         btnSave = view.findViewById(R.id.btnSave);
         ivRecipeImage = view.findViewById(R.id.ivRecipeImage);
         btnPin = view.findViewById(R.id.btnPin);
 
-        // Resolve current user's diet mode (best-effort; default = normal)
+        normalColor = ContextCompat.getColor(requireContext(), R.color.green_primary);
+        errorColor = ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark);
+
         String usernameArg = requireActivity().getIntent() != null
                 ? requireActivity().getIntent().getStringExtra("username") : null;
         currentDietMode = UserDataManager.getDietMode(requireContext(), usernameArg == null ? "" : usernameArg);
 
         String[] categories = {"Breakfast", "Lunch", "Dinner", "Vegetarian", "Dessert"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
-                android.R.layout.simple_dropdown_item_1line,categories);
-        etCategory.setAdapter(adapter);
-        etCategory.setThreshold(0);
-        etCategory.setKeyListener(null);
+                android.R.layout.simple_dropdown_item_1line, categories);
+        actvCategory.setAdapter(adapter);
+        actvCategory.setThreshold(0);
+        actvCategory.setKeyListener(null);
 
-        // ---- Part C: chip picker wiring ----
+        // Chip picker wiring
         if (actvIngredient != null && etQuantity != null && chipGroupItems != null) {
             List<String> suggestions = collectIngredientSuggestions();
             ArrayAdapter<String> ingAdapter = new ArrayAdapter<>(
                     requireContext(), android.R.layout.simple_list_item_1, suggestions);
             actvIngredient.setAdapter(ingAdapter);
-            actvIngredient.setOnFocusChangeListener((vv, hasFocus) -> { if (hasFocus) actvIngredient.showDropDown(); });
 
-            actvIngredient.setOnItemClickListener((parent, view1, position, id1) -> addCurrentChip());
+            actvIngredient.setOnFocusChangeListener((vv, hasFocus) -> {
+                if (hasFocus) {
+                    actvIngredient.showDropDown();
+                }
+            });
+
+            actvIngredient.setOnItemClickListener((parent, view1, position, id1) -> {
+                etQuantity.requestFocus();
+            });
+
             actvIngredient.setOnEditorActionListener((tv, actionId, event) -> {
-                if (actionId == EditorInfo.IME_ACTION_DONE) { addCurrentChip(); return true; }
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    layoutIngredient.setBoxStrokeColor(normalColor);
+                    layoutIngredient.setError(null);
+                    etQuantity.requestFocus();
+                    return true;
+                }
                 return false;
+            });
+
+            etQuantity.setOnEditorActionListener((tv, actionId, event) -> {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    ValidateAndAddChip();
+                    return true;
+                }
+                return false;
+            });
+
+            etQuantity.setOnFocusChangeListener((v, hasFocus) -> {
+                if (hasFocus) {
+                    layoutQuantity.setBoxStrokeColor(normalColor);
+                    layoutQuantity.setError(null);
+                }
             });
         }
 
         LoadRecipeFromDetail();
 
-        etCategory.setOnClickListener(v -> {
-            if (!etCategory.isPopupShowing()) {
-                String previousText = etCategory.getText().toString();
-                etCategory.setTag(previousText);
-                etCategory.setText("");
-                etCategory.showDropDown();
+        actvCategory.setOnClickListener(v -> {
+            if (!actvCategory.isPopupShowing()) {
+                String previousText = actvCategory.getText().toString();
+                actvCategory.setTag(previousText);
+                actvCategory.setText("");
+                actvCategory.showDropDown();
             }
         });
 
-        etCategory.setOnFocusChangeListener((v, hasFocus) -> {
+        actvCategory.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) {
-                String previousText = (String) etCategory.getTag();
-                if (etCategory.getText().toString().isEmpty() && previousText != null) {
-                    etCategory.setText(previousText);
+                String previousText = (String) actvCategory.getTag();
+                if (actvCategory.getText().toString().isEmpty() && previousText != null) {
+                    actvCategory.setText(previousText);
                 }
             }
         });
@@ -132,12 +159,10 @@ public class RecipeFormFragment extends Fragment {
         ivRecipeImage.setOnClickListener(v -> showImageSelectionDialog());
 
         btnSave.setOnClickListener(v -> {
-            // 1) Lấy (hoặc tạo) Recipe đang chỉnh
-            Recipe toSave = (recipe != null) ? recipe : new Recipe();  // cần ctor rỗng
+            Recipe toSave = (recipe != null) ? recipe : new Recipe();
 
-            // 2) Đổ dữ liệu từ form
             toSave.setTitle(etTitle.getText().toString());
-            toSave.setCategory(etCategory.getText().toString());
+            toSave.setCategory(actvCategory.getText().toString());
             toSave.setInstructions(etInstructions.getText().toString());
             toSave.setImage(selectedImage);
             toSave.setPinned(isPinned);
@@ -152,20 +177,17 @@ public class RecipeFormFragment extends Fragment {
             toSave.setFat(fat);
             toSave.setProtein(protein);
 
-            // Build legacy text from chips for compatibility, and persist structured items
             List<Recipe.RecipeItem> itemsToSave = new ArrayList<>(stagedItems);
             String legacy = buildLegacyTextFromItems(itemsToSave);
             toSave.setItems(itemsToSave);
             toSave.setIngredients(legacy);
 
-            // 3) Gọi API mới theo id
             if (toSave.getId() == null || toSave.getId().isEmpty()) {
                 RecipeDataManager.AddRecipe(requireContext(), toSave);
             } else {
                 RecipeDataManager.UpdateRecipeById(requireContext(), toSave.getId(), toSave);
             }
 
-            // 4) Điều hướng như cũ
             requireActivity().getSupportFragmentManager().popBackStack(
                     null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
             requireActivity().getSupportFragmentManager().beginTransaction()
@@ -176,69 +198,27 @@ public class RecipeFormFragment extends Fragment {
         return view;
     }
 
-    private void updatePinIcon() {
-        if (isPinned) {
-            btnPin.setImageResource(R.drawable.ic_heart_filled);
-        } else {
-            btnPin.setImageResource(R.drawable.ic_heart);
+    private void ValidateAndAddChip() {
+        String ingredient = actvIngredient.getText() == null ? "" : actvIngredient.getText().toString().trim();
+        String quantity = etQuantity.getText() == null ? "" : etQuantity.getText().toString().trim();
+
+        ResetLayoutOutlines();
+
+        if (ingredient.isEmpty()) {
+            showError(layoutIngredient, actvIngredient, "Please add an ingredient");
+            return;
         }
-    }
-
-    private void showImageSelectionDialog() {
-        final int[] imageResIds = {
-                R.drawable.pho,
-                R.drawable.steak,
-                R.drawable.salad,
-        };
-
-        String[] imageNames = {"Pho", "Steak", "Salad"};
-
-        new AlertDialog.Builder(getContext())
-                .setTitle("Select an image")
-                .setItems(imageNames, (dialog, which) -> {
-                    selectedImage = imageResIds[which];
-                    ivRecipeImage.setImageResource(selectedImage);
-                })
-                .show();
-    }
-
-    private void LoadRecipeFromDetail() {
-        if (getArguments() != null) {
-            recipe = (Recipe) getArguments().getSerializable("recipe");
-            if (recipe != null) {
-                etTitle.setText(recipe.getTitle());
-                etCategory.setText(recipe.getCategory());
-                etInstructions.setText(recipe.getInstructions());
-                selectedImage = recipe.getImage();
-                ivRecipeImage.setImageResource(selectedImage);
-                isPinned = recipe.isPinned();
-                etCalories.setText(String.valueOf(recipe.getCalories()));
-                etCarbs.setText(String.valueOf(recipe.getCarbs()));
-                etFat.setText(String.valueOf(recipe.getFat()));
-                etProtein.setText(String.valueOf(recipe.getProtein()));
-                updatePinIcon();
-
-                // Hydrate chips from existing items (preferred), else from legacy text
-                stagedItems.clear();
-                List<Recipe.RecipeItem> source = (recipe.getItems() != null && !recipe.getItems().isEmpty())
-                        ? recipe.getItems()
-                        : RecipeDataManager.parseLegacyIngredients(recipe.getIngredients());
-                if (chipGroupItems != null) {
-                    chipGroupItems.removeAllViews();
-                    if (source != null) {
-                        for (Recipe.RecipeItem it : source) {
-                            stagedItems.add(it);
-                            addChipFromItem(it);
-                        }
-                    }
-                }
-            }
+        if (quantity.isEmpty()) {
+            showError(layoutQuantity, etQuantity, "Please add the quantity");
+            return;
         }
+
+        addCurrentChip();
     }
 
     private void addCurrentChip() {
         String name = actvIngredient.getText() == null ? "" : actvIngredient.getText().toString().trim();
-        String qty  = etQuantity.getText() == null ? "" : etQuantity.getText().toString().trim();
+        String qty = etQuantity.getText() == null ? "" : etQuantity.getText().toString().trim();
         if (name.isEmpty()) return;
 
         Recipe.Ingredient ing = new Recipe.Ingredient(null, name);
@@ -247,14 +227,13 @@ public class RecipeFormFragment extends Fragment {
         stagedItems.add(item);
 
         addChipFromItem(item);
-
         actvIngredient.setText("");
         etQuantity.setText("");
     }
 
     private void addChipFromItem(Recipe.RecipeItem item) {
         String name = item.getIngredient() != null ? item.getIngredient().getName() : "";
-        String qty  = item.getQuantity() == null ? "" : item.getQuantity().trim();
+        String qty = item.getQuantity() == null ? "" : item.getQuantity().trim();
         String label = name + (qty.isEmpty() ? "" : " — " + qty);
 
         Chip chip = new Chip(requireContext());
@@ -300,47 +279,117 @@ public class RecipeFormFragment extends Fragment {
 
     private String buildLegacyTextFromItems(List<Recipe.RecipeItem> items) {
         if (items == null || items.isEmpty()) return "";
-        StringBuilder sb = new StringBuilder();
+        StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < items.size(); i++) {
-            Recipe.RecipeItem it = items.get(i);
-            String name = (it.getIngredient() != null && it.getIngredient().getName() != null)
-                    ? it.getIngredient().getName() : "";
-            String qty  = it.getQuantity() == null ? "" : it.getQuantity().trim();
-            if (!name.isEmpty()) sb.append(name);
-            if (!qty.isEmpty()) sb.append(" — ").append(qty);
-            if (i < items.size() - 1) sb.append("\n");
+            Recipe.RecipeItem recipeItem = items.get(i);
+            String nameIngredient = (recipeItem.getIngredient() != null && recipeItem.getIngredient().getName() != null)
+                    ? recipeItem.getIngredient().getName() : "";
+            String quantity = recipeItem.getQuantity() == null ? "" : recipeItem.getQuantity().trim();
+            if (!nameIngredient.isEmpty()) stringBuilder.append(nameIngredient);
+            if (!quantity.isEmpty()) stringBuilder.append(" — ").append(quantity);
+            if (i < items.size() - 1) stringBuilder.append("\n");
         }
-        return sb.toString();
+        return stringBuilder.toString();
     }
 
-    // Local heuristic: map ingredient name → tags (so we don't depend on other classes)
     private List<String> tagsForName(String rawName) {
         List<String> tags = new ArrayList<>();
         if (rawName == null) return tags;
         String n = rawName.trim().toLowerCase();
         if (n.isEmpty()) return tags;
 
-        // --- meat / fish / dairy / egg ---
         if (n.matches(".*\\b(beef|steak|pork|bacon|ham|chicken|turkey|lamb|goat)\\b.*")) tags.add("meat");
         if (n.matches(".*\\b(fish|salmon|tuna|mackerel|sardine|anchovy|shrimp|prawn|crab|octopus|squid)\\b.*")) tags.add("fish");
         if (n.matches(".*\\b(milk|cheese|butter|yogurt|cream)\\b.*")) tags.add("dairy");
         if (n.matches(".*\\b(egg|eggs)\\b.*")) tags.add("egg");
 
-        // --- gluten / grains ---
         if (n.matches(".*\\b(wheat|barley|rye|semolina|farina|spelt|malt)\\b.*")) tags.add("gluten");
         if (n.matches(".*\\b(bread|pasta|noodle|udon|spaghetti|flour)\\b.*")) tags.add("gluten");
 
-        // --- high-carb / sugar ---
         if (n.matches(".*\\b(rice|potato|noodle|pasta|bread)\\b.*")) tags.add("high-carb");
         if (n.matches(".*\\b(sugar|honey|syrup|molasses)\\b.*")) tags.add("sugar");
 
-        // --- vegan-friendly cues ---
         if (n.matches(".*\\b(tofu|tempeh|seitan|soy milk|almond milk|oat milk)\\b.*")) tags.add("vegan-friendly");
 
-        // de-duplicate
         Set<String> uniq = new HashSet<>(tags);
         return new ArrayList<>(uniq);
     }
 
+    private void showError(TextInputLayout layout, TextInputEditText input, String message) {
+        layout.setBoxStrokeColor(errorColor);
+        layout.setError(message);
+        input.requestFocus();
+    }
 
+    private void showError(TextInputLayout layout, AutoCompleteTextView input, String message) {
+        layout.setBoxStrokeColor(errorColor);
+        layout.setError(message);
+        input.requestFocus();
+    }
+
+    private void ResetLayoutOutlines() {
+        layoutIngredient.setBoxStrokeColor(normalColor);
+        layoutIngredient.setError(null);
+        layoutQuantity.setBoxStrokeColor(normalColor);
+        layoutQuantity.setError(null);
+    }
+
+    private void updatePinIcon() {
+        if (isPinned) {
+            btnPin.setImageResource(R.drawable.ic_heart_filled);
+        } else {
+            btnPin.setImageResource(R.drawable.ic_heart);
+        }
+    }
+
+    private void showImageSelectionDialog() {
+        final int[] imageResIds = {
+                R.drawable.pho,
+                R.drawable.steak,
+                R.drawable.salad,
+        };
+
+        String[] imageNames = {"Pho", "Steak", "Salad"};
+
+        new AlertDialog.Builder(getContext())
+                .setTitle("Select an image")
+                .setItems(imageNames, (dialog, which) -> {
+                    selectedImage = imageResIds[which];
+                    ivRecipeImage.setImageResource(selectedImage);
+                })
+                .show();
+    }
+
+    private void LoadRecipeFromDetail() {
+        if (getArguments() != null) {
+            recipe = (Recipe) getArguments().getSerializable("recipe");
+            if (recipe != null) {
+                etTitle.setText(recipe.getTitle());
+                actvCategory.setText(recipe.getCategory());
+                etInstructions.setText(recipe.getInstructions());
+                selectedImage = recipe.getImage();
+                ivRecipeImage.setImageResource(selectedImage);
+                isPinned = recipe.isPinned();
+                etCalories.setText(String.valueOf(recipe.getCalories()));
+                etCarbs.setText(String.valueOf(recipe.getCarbs()));
+                etFat.setText(String.valueOf(recipe.getFat()));
+                etProtein.setText(String.valueOf(recipe.getProtein()));
+                updatePinIcon();
+
+                stagedItems.clear();
+                List<Recipe.RecipeItem> source = (recipe.getItems() != null && !recipe.getItems().isEmpty())
+                        ? recipe.getItems()
+                        : RecipeDataManager.parseLegacyIngredients(recipe.getIngredients());
+                if (chipGroupItems != null) {
+                    chipGroupItems.removeAllViews();
+                    if (source != null) {
+                        for (Recipe.RecipeItem it : source) {
+                            stagedItems.add(it);
+                            addChipFromItem(it);
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

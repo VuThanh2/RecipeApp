@@ -71,6 +71,7 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layoutIngredient"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
@@ -94,6 +95,7 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layoutQuantity"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
@@ -108,7 +110,10 @@
                 android:id="@+id/etQuantity"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Quantity (e.g. 200g)" />
+                android:inputType="number"
+                android:hint="Quantity of ingredients"
+                android:digits="0123456789"
+                android:imeOptions="actionDone"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.chip.ChipGroup
@@ -172,7 +177,8 @@
                         android:hint="Calories"
                         android:inputType="number"
                         android:gravity="center"
-                        android:digits="0123456789"/>
+                        android:digits="0123456789"
+                        android:imeOptions="actionDone"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -193,7 +199,8 @@
                         android:hint="Carb"
                         android:inputType="number"
                         android:gravity="center"
-                        android:digits="0123456789"/>
+                        android:digits="0123456789"
+                        android:imeOptions="actionDone"/>
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 
@@ -221,7 +228,8 @@
                         android:hint="Fat"
                         android:inputType="number"
                         android:gravity="center"
-                        android:digits="0123456789"/>
+                        android:digits="0123456789"
+                        android:imeOptions="actionDone"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -242,7 +250,8 @@
                         android:hint="Protein"
                         android:inputType="number"
                         android:gravity="center"
-                        android:digits="0123456789"/>
+                        android:digits="0123456789"
+                        android:imeOptions="actionDone"/>
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
         </LinearLayout>

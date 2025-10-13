@@ -63,7 +63,7 @@ public class WeeklyAdapter extends RecyclerView.Adapter<WeeklyAdapter.DayVH> {
 
     @Override public void onBindViewHolder(@NonNull DayVH h, int pos) {
         Day d = days[pos];
-        h.dayLabel.setText(d.name().substring(0,1)); // S/M/T...
+        h.dayLabel.setText(d.name());
         h.chips.removeAllViews();
         List<Recipe> tags = data.get(d);
         if (tags != null) for (Recipe t: tags) {
