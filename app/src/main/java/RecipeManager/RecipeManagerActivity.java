@@ -74,14 +74,14 @@ public class RecipeManagerActivity extends AppCompatActivity implements RecipeLi
         toggle.getDrawerArrowDrawable().setColor(getResources().getColor(android.R.color.white));
 
         navigationView.setNavigationItemSelectedListener(item -> {
-            int id = item.getItemId();
+            int itemId = item.getItemId();
 
-            if (id == R.id.nav_home) {
+            if (itemId == R.id.nav_home) {
                 PassDataToActivity(RecipeManagerActivity.class, 4);
-            } else if (id == R.id.nav_logout) {
+            } else if (itemId == R.id.nav_logout) {
                 Toast.makeText(this, "Logged out", Toast.LENGTH_SHORT).show();
                 PassDataToActivity(LoginActivity.class, 4);
-            } else if (id == R.id.nav_planner) {
+            } else if (itemId == R.id.nav_planner) {
                 PassDataToActivity(WeeklyPlannerActivity.class, 1);
             }
 

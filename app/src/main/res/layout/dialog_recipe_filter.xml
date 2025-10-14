@@ -105,13 +105,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Apply"
-            android:layout_marginTop="16dp"/>
+            android:layout_marginTop="16dp"
+            android:backgroundTint="@color/green_primary"/>
 
         <Button
             android:id="@+id/btnReset"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Reset"
-            android:layout_marginTop="16dp"/>
+            android:layout_marginTop="16dp"
+            android:backgroundTint="@color/green_primary"/>
     </LinearLayout>
 </ScrollView>

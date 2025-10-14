@@ -72,20 +72,28 @@ public class WeeklyAdapter extends RecyclerView.Adapter<WeeklyAdapter.DayVH> {
                 // Skip adding this chip entirely
                 continue;
             }
-            Chip c = (Chip) LayoutInflater.from(ctx).inflate(R.layout.part_chip, h.chips, false);
+            Chip chip = (Chip) LayoutInflater.from(ctx).inflate(R.layout.part_chip, h.chips, false);
             String title = t.getTitle() == null ? "(Untitled)" : t.getTitle();
             if (!allowed && "warn".equalsIgnoreCase(filterPolicy)) title += " \u26A0"; // ⚠
-            c.setText(title);
+            chip.setText(title);
+
+            chip.setCloseIconVisible(true);
+            chip.setCloseIconResource(android.R.drawable.ic_menu_close_clear_cancel);
+            chip.setCloseIconTint(ColorStateList.valueOf(Color.BLACK));
+
+            chip.setOnCloseIconClickListener(v -> {
+                listener.onRemoveTag(d, t.getId(), t.getTitle()); // notify listener
+                h.chips.removeView(chip);
+            });
 
             if (!allowed) {
                 // Visual warn: red stroke + slight dim
-                c.setAlpha(0.8f);
-                c.setChipStrokeWidth(2f);
-                c.setChipStrokeColor(ColorStateList.valueOf(Color.parseColor("#FF4444")));
+                chip.setAlpha(0.8f);
+                chip.setChipStrokeWidth(2f);
+                chip.setChipStrokeColor(ColorStateList.valueOf(Color.parseColor("#FF4444")));
             }
 
-            c.setOnLongClickListener(v -> { listener.onRemoveTag(d, t.getId(), t.getTitle()); return true; });
-            h.chips.addView(c);
+            h.chips.addView(chip);
         }
         h.addBtn.setOnClickListener(v -> listener.onAddClicked(d));
     }

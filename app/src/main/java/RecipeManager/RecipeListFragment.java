@@ -3,11 +3,13 @@ package RecipeManager;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -27,8 +29,9 @@ public class RecipeListFragment extends Fragment {
     private final List<Recipe> unpinnedList = new ArrayList<>();
     private FloatingActionButton fab;
     private OnRecipeSelectedListener listener;
-    private String dietMode = "normal";      // normal | vegan | keto | gluten_free
-    private String filterPolicy = "warn";    // warn | hide
+    private String dietMode = "normal";
+    private String filterPolicy = "warn";
+    private androidx.appcompat.view.ActionMode actionMode;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -79,15 +82,47 @@ public class RecipeListFragment extends Fragment {
     }
 
     private void setupAdapters() {
-        adapterPinned = new RecipeAdapter(pinnedList, (recipe, pos) -> {
-            if (listener != null) listener.onRecipeSelected(recipe, -1);
+        adapterPinned = new RecipeAdapter(pinnedList, new RecipeAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(Recipe recipe, int position) {
+                if (!adapterPinned.isMultiSelectMode()) {
+                    if (listener != null) listener.onRecipeSelected(recipe, -1);
+                }
+            }
+
+            @Override
+            public void onSelectionChanged(int count) {
+                updateActionMode(count);
+            }
+
+            @Override
+            public void onMultiSelectEntered() {
+                // Synchronize multi-select mode with unpinned adapter
+                adapterUnpinned.setMultiSelectMode(true);
+            }
         });
         rvPinned.setLayoutManager(new GridLayoutManager(getContext(), 2));
         rvPinned.setAdapter(adapterPinned);
         rvPinned.setNestedScrollingEnabled(false);
 
-        adapterUnpinned = new RecipeAdapter(unpinnedList, (recipe, pos) -> {
-            if (listener != null) listener.onRecipeSelected(recipe, -1);
+        adapterUnpinned = new RecipeAdapter(unpinnedList, new RecipeAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(Recipe recipe, int position) {
+                if (!adapterUnpinned.isMultiSelectMode()) {
+                    if (listener != null) listener.onRecipeSelected(recipe, -1);
+                }
+            }
+
+            @Override
+            public void onSelectionChanged(int count) {
+                updateActionMode(count);
+            }
+
+            @Override
+            public void onMultiSelectEntered() {
+                // Synchronize multi-select mode with pinned adapter
+                adapterPinned.setMultiSelectMode(true);
+            }
         });
         rvUnpinned.setLayoutManager(new GridLayoutManager(getContext(), 2));
         rvUnpinned.setAdapter(adapterUnpinned);
@@ -95,6 +130,8 @@ public class RecipeListFragment extends Fragment {
     }
 
     private void reloadData() {
+        adapterPinned.silentExitMultiSelectMode();
+        adapterUnpinned.silentExitMultiSelectMode();
         pinnedList.clear();
         unpinnedList.clear();
 
@@ -250,4 +287,117 @@ public class RecipeListFragment extends Fragment {
         adapterUnpinned.notifyDataSetChanged();
     }
 
+    private void updateActionMode(int count) {
+        int selectedPinnedCount = adapterPinned.getSelectedRecipes().size();
+        int selectedUnpinnedCount = adapterUnpinned.getSelectedRecipes().size();
+        int totalSelected = selectedPinnedCount + selectedUnpinnedCount;
+
+        // Start action mode if selections exist
+        if (totalSelected > 0 && actionMode == null) {
+            actionMode = ((AppCompatActivity)getActivity()).startSupportActionMode(actionModeCallback);
+        }
+        // Finish action mode if no selections
+        else if (totalSelected == 0 && actionMode != null) {
+            actionMode.finish();
+        }
+
+        // Update the title with total count
+        if (actionMode != null) {
+            actionMode.setTitle(totalSelected + " selected");
+        }
+    }
+
+    private final androidx.appcompat.view.ActionMode.Callback actionModeCallback = new androidx.appcompat.view.ActionMode.Callback() {
+        @Override
+        public boolean onCreateActionMode(androidx.appcompat.view.ActionMode mode, Menu menu) {
+            mode.getMenuInflater().inflate(R.menu.menu_action_mode, menu); // pin, delete icons
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(androidx.appcompat.view.ActionMode mode, Menu menu) { return false; }
+
+        @Override
+        public boolean onActionItemClicked(androidx.appcompat.view.ActionMode mode, MenuItem item) {
+            if (item.getItemId() == R.id.action_delete) {
+                MultiSelectRecipeDelete();
+                mode.finish();
+                return true;
+            } else if (item.getItemId() == R.id.action_pin) {
+                pinSelected();
+                mode.finish();
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public void onDestroyActionMode(androidx.appcompat.view.ActionMode mode) {
+            // Exit multi-select mode in both adapters
+            adapterPinned.silentExitMultiSelectMode();
+            adapterUnpinned.silentExitMultiSelectMode();
+            actionMode = null;
+        }
+    };
+
+    private void MultiSelectRecipeDelete() {
+        List<Recipe> toDelete = new ArrayList<>();
+        toDelete.addAll(adapterPinned.getSelectedRecipes());
+        toDelete.addAll(adapterUnpinned.getSelectedRecipes());
+
+        if (toDelete.isEmpty()) return;
+
+        List<Recipe> all = RecipeDataManager.LoadAllRecipe(requireContext());
+
+        for (Recipe deleteMe : toDelete) {
+            for (int i = 0; i < all.size(); i++) {
+                Recipe r = all.get(i);
+                if (r.getId() != null && r.getId().equals(deleteMe.getId())) {
+                    all.remove(i);
+                    break;
+                }
+            }
+        }
+
+        RecipeDataManager.saveAll(requireContext(), all);
+
+        reloadData();
+
+        adapterPinned.silentExitMultiSelectMode();
+        adapterUnpinned.silentExitMultiSelectMode();
+    }
+
+    private void pinSelected() {
+        List<Recipe> selectedPinned = adapterPinned.getSelectedRecipes();
+        List<Recipe> selectedUnpinned = adapterUnpinned.getSelectedRecipes();
+        List<Recipe> allSelected = new ArrayList<>();
+        allSelected.addAll(selectedPinned);
+        allSelected.addAll(selectedUnpinned);
+
+        if (allSelected.isEmpty()) return;
+
+        boolean allPinned = true;
+        for (Recipe selected : allSelected) {
+            if (!selected.isPinned()) {
+                allPinned = false;
+                break;
+            }
+        }
+
+        List<Recipe> all = RecipeDataManager.LoadAllRecipe(requireContext());
+        boolean targetPinState = !allPinned;
+        for (Recipe selected : allSelected) {
+            for (Recipe r : all) {
+                if (r.getId() != null && r.getId().equals(selected.getId())) {
+                    r.setPinned(targetPinState);
+                    break;
+                }
+            }
+        }
+
+        RecipeDataManager.saveAll(requireContext(), all);
+        adapterPinned.silentExitMultiSelectMode();
+        adapterUnpinned.silentExitMultiSelectMode();
+        reloadData();
+    }
 }

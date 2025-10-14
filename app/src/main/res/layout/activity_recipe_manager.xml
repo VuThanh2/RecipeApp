@@ -66,13 +66,14 @@
             android:layout_height="match_parent" />
     </LinearLayout>
 
-    <com.google.android.material.navigation.NavigationView
-        android:id="@+id/navigation_view"
-        android:layout_width="250dp"
-        android:layout_height="match_parent"
-        app:itemIconTint="@color/white"
-        app:itemTextColor="@color/white"
-        android:background="@color/green_medium"
-        android:layout_gravity="start"
-        app:menu="@menu/drawer_menu" />
+        <com.google.android.material.navigation.NavigationView
+            android:id="@+id/navigation_view"
+            android:layout_width="250dp"
+            android:layout_height="match_parent"
+            app:itemBackground="@color/green_medium"
+            app:itemIconTint="@color/white"
+            app:itemTextColor="@color/white"
+            android:background="@color/green_medium"
+            android:layout_gravity="start"
+            app:menu="@menu/drawer_menu" />
 </androidx.drawerlayout.widget.DrawerLayout>
