@@ -76,6 +76,26 @@
             android:textColor="@android:color/white"
             android:textColorHint="@android:color/white" />
     </com.google.android.material.textfield.TextInputLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:id="@+id/txtRegister"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Create an account"
+            android:textColor="@android:color/white"
+            android:layout_marginTop="8dp" />
+
+        <TextView
+            android:id="@+id/txtForgotPassword"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Forgot password?"
+            android:textColor="@android:color/white"
+            android:layout_marginTop="8dp" />
+    </LinearLayout>
 
     <Button
         android:id="@+id/btnLogin"
@@ -91,21 +111,5 @@
         android:textColor="@color/green_primary"
         android:padding="12dp" />
 
-    <TextView
-        android:id="@+id/txtRegister"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Create an account"
-        android:textAlignment="center"
-        android:textColor="@android:color/white"
-        android:layout_marginTop="16dp" />
 
-    <TextView
-        android:id="@+id/txtForgotPassword"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Forgot password?"
-        android:textAlignment="center"
-        android:textColor="@android:color/white"
-        android:layout_marginTop="8dp" />
 </LinearLayout>
