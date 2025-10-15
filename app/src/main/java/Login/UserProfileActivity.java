@@ -66,6 +66,7 @@ public class UserProfileActivity extends AppCompatActivity {
 
         buttonLogout.setOnClickListener(v -> {
             SessionManager.clear(this);
+            SessionManager.setLoggedIn(this, false);
             Toast.makeText(this, "Logged out", Toast.LENGTH_SHORT).show();
             Intent logoutIntent = new Intent(this, LoginActivity.class);
             logoutIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);

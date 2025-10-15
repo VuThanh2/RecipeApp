@@ -136,7 +136,6 @@ public class RecipeListFragment extends Fragment {
         pinnedList.clear();
         unpinnedList.clear();
 
-        // ✅ Dùng API mới dạng domain objects
         List<Recipe> all = RecipeDataManager.LoadAllRecipe(requireContext());
         for (Recipe r : all) {
             if (r.isPinned()) pinnedList.add(r);
@@ -221,7 +220,6 @@ public class RecipeListFragment extends Fragment {
     }
 
     public void FilterRecipesForSearching(String query) {
-        //It is working please do not touch this
         if (query == null) query = "";
         String q = query.toLowerCase().trim();
 
@@ -312,7 +310,7 @@ public class RecipeListFragment extends Fragment {
     private final androidx.appcompat.view.ActionMode.Callback actionModeCallback = new androidx.appcompat.view.ActionMode.Callback() {
         @Override
         public boolean onCreateActionMode(androidx.appcompat.view.ActionMode mode, Menu menu) {
-            mode.getMenuInflater().inflate(R.menu.menu_action_mode, menu); // pin, delete icons
+            mode.getMenuInflater().inflate(R.menu.menu_action_mode, menu);
             return true;
         }
 

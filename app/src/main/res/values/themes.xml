@@ -4,6 +4,5 @@
         <item name="android:statusBarColor">@color/green_primary</item>
         <item name="android:windowLightStatusBar">false</item>
     </style>
-
     <style name="Theme.RecipeApp" parent="Base.Theme.RecipeApp" />
 </resources>

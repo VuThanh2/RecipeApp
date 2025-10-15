@@ -19,6 +19,7 @@ import com.google.android.material.navigation.NavigationView;
 import java.util.Objects;
 
 import Login.LoginActivity;
+import Login.SessionManager;
 import Login.UserProfileActivity;
 import MealPlanner.WeeklyPlannerActivity;
 
@@ -78,11 +79,13 @@ public class RecipeManagerActivity extends AppCompatActivity implements RecipeLi
 
             if (itemId == R.id.nav_home) {
                 PassDataToActivity(RecipeManagerActivity.class, 4);
-            } else if (itemId == R.id.nav_logout) {
-                Toast.makeText(this, "Logged out", Toast.LENGTH_SHORT).show();
-                PassDataToActivity(LoginActivity.class, 4);
             } else if (itemId == R.id.nav_planner) {
                 PassDataToActivity(WeeklyPlannerActivity.class, 1);
+            } else if (itemId == R.id.nav_logout) {
+                SessionManager.clear(this);
+                SessionManager.setLoggedIn(this, false);
+                Toast.makeText(this, "Logged out", Toast.LENGTH_SHORT).show();
+                PassDataToActivity(LoginActivity.class, 4);
             }
 
             drawerLayout.closeDrawers();

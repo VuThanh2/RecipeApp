@@ -24,6 +24,14 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (SessionManager.isLoggedIn(this)) {
+            Intent intent = new Intent(this, RecipeManagerActivity.class);
+            startActivity(intent);
+            finish();
+            return;
+        }
+
         setContentView(R.layout.activity_login);
 
         usernameLayout = findViewById(R.id.layoutUsername);
@@ -71,6 +79,7 @@ public class LoginActivity extends AppCompatActivity {
         if (UserDataManager.validateLogin(this, username, password)) {
             Toast.makeText(this, "Login successful!", Toast.LENGTH_SHORT).show();
             SessionManager.setCurrentUsername(this, username);
+            SessionManager.setLoggedIn(this, true);
             Intent intent = new Intent(LoginActivity.this, RecipeManagerActivity.class);
             intent.putExtra("username", username);
             startActivity(intent);

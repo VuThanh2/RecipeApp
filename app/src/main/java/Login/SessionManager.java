@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 public final class SessionManager {
     private static final String PREF = "app_session";
     private static final String KEY_USERNAME = "current_username";
+    private static final String KEY_IS_LOGGED_IN = "is_logged_in";
 
     private SessionManager(){}
 
@@ -24,5 +25,17 @@ public final class SessionManager {
 
     public static void clear(Context ctx){
         ctx.getSharedPreferences(PREF, Context.MODE_PRIVATE).edit().clear().apply();
+    }
+
+    public static void setLoggedIn(Context ctx, boolean value) {
+        ctx.getSharedPreferences(PREF, Context.MODE_PRIVATE)
+                .edit()
+                .putBoolean(KEY_IS_LOGGED_IN, value)
+                .apply();
+    }
+
+    public static boolean isLoggedIn(Context ctx) {
+        return ctx.getSharedPreferences(PREF, Context.MODE_PRIVATE)
+                .getBoolean(KEY_IS_LOGGED_IN, false);
     }
 }
