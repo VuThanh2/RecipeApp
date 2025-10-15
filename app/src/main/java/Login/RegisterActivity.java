@@ -7,7 +7,7 @@ import androidx.core.content.ContextCompat;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.example.recipeapp.R;
-
+import Login.SessionManager;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
@@ -69,6 +69,7 @@ public class RegisterActivity extends AppCompatActivity {
         boolean success = UserDataManager.registerUser(this, username, password);
         if (success) {
             Toast.makeText(this, "Account created successfully!", Toast.LENGTH_SHORT).show();
+            SessionManager.setCurrentUsername(this, username);
             finish();
         } else {
             showError(usernameLayout, usernameInput, "Username already exists");

@@ -8,6 +8,7 @@ import org.json.JSONObject;
 
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import Login.SessionManager;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -20,8 +21,10 @@ import java.util.UUID;
 
 public class RecipeDataManager {
     private static final String RECIPES_FILE_NAME = "recipes.json";
-
-    /** Tạo file rỗng nếu chưa tồn tại. */
+    private static final String KEY_OWNER = "owner";
+    /**
+     * Tạo file rỗng nếu chưa tồn tại.
+     */
     public static void createJsonFileIfEmpty(Context context) {
         File file = new File(context.getFilesDir(), RECIPES_FILE_NAME);
         if (!file.exists()) {
@@ -29,7 +32,9 @@ public class RecipeDataManager {
         }
     }
 
-    /** Đọc mảng JSON thô từ file. Nếu lỗi trả JSONArray rỗng. */
+    /**
+     * Đọc mảng JSON thô từ file. Nếu lỗi trả JSONArray rỗng.
+     */
     private static JSONArray loadRaw(Context context) {
         StringBuilder sb = new StringBuilder();
         try (FileInputStream fis = context.openFileInput(RECIPES_FILE_NAME);
@@ -43,7 +48,9 @@ public class RecipeDataManager {
         }
     }
 
-    /** Ghi mảng JSON thô ra file. */
+    /**
+     * Ghi mảng JSON thô ra file.
+     */
     private static void saveRaw(Context context, JSONArray arr) {
         try (FileOutputStream fos = context.openFileOutput(RECIPES_FILE_NAME, Context.MODE_PRIVATE)) {
             fos.write(arr.toString().getBytes());
@@ -52,60 +59,95 @@ public class RecipeDataManager {
         }
     }
 
-    /** Trả toàn bộ danh sách Recipe. */
+    /**
+     * Trả toàn bộ danh sách Recipe.
+     */
     public static List<Recipe> LoadAllRecipe(Context context) {
+        String current = SessionManager.getCurrentUsername(context);
         JSONArray raw = loadRaw(context);
         List<Recipe> out = new ArrayList<>();
         for (int i = 0; i < raw.length(); i++) {
             JSONObject o = raw.optJSONObject(i);
             Recipe r = jsonToRecipe(o);
-            if (r != null) out.add(r);
+            if (r != null && current.equals(r.getOwner())) out.add(r);
         }
         return out;
     }
 
-    /** Ghi đè toàn bộ danh sách Recipe. */
+    /**
+     * Ghi đè toàn bộ danh sách Recipe.
+     */
     public static void saveAll(Context context, List<Recipe> recipes) {
-        JSONArray arr = new JSONArray();
-        for (Recipe r : recipes) arr.put(recipeToJson(r));
-        saveRaw(context, arr);
+        String current = SessionManager.getCurrentUsername(context);
+        JSONArray src = loadRaw(context);
+        JSONArray dst = new JSONArray();
+        // Keep recipes of other users
+        for (int i = 0; i < src.length(); i++) {
+            JSONObject o = src.optJSONObject(i);
+            Recipe r = jsonToRecipe(o);
+            if (r == null || !current.equals(r.getOwner())) {
+                dst.put(o);
+            }
+        }
+        // Write current user's recipes
+        if (recipes != null) {
+            for (Recipe r : recipes) {
+                if (r == null) continue;
+                if (r.getOwner() == null || r.getOwner().isEmpty()) r.setOwner(current);
+                if (r.getId() == null || r.getId().isEmpty()) r.setId(UUID.randomUUID().toString());
+                dst.put(recipeToJson(r));
+            }
+        }
+        saveRaw(context, dst);
     }
 
-    /** Lấy Recipe theo id. */
+    /**
+     * Lấy Recipe theo id.
+     */
     public static Recipe GetRecipeById(Context context, String id) {
         if (id == null) return null;
+        String current = SessionManager.getCurrentUsername(context);
         JSONArray raw = loadRaw(context);
         for (int i = 0; i < raw.length(); i++) {
             JSONObject o = raw.optJSONObject(i);
             Recipe r = jsonToRecipe(o);
-            if (r != null && id.equals(r.getId())) return r;
+            if (r != null && id.equals(r.getId()) && current.equals(r.getOwner())) return r;
         }
         return null;
     }
 
-    /** Thêm Recipe (tự phát id nếu thiếu). */
+    /**
+     * Thêm Recipe (tự phát id nếu thiếu).
+     */
     public static void AddRecipe(Context context, Recipe recipe) {
         if (recipe == null) return;
+        String current = SessionManager.getCurrentUsername(context);
         if (recipe.getId() == null || recipe.getId().isEmpty()) {
             recipe.setId(UUID.randomUUID().toString());
+        }
+        if (recipe.getOwner() == null || recipe.getOwner().isEmpty()) {
+            recipe.setOwner(current);
         }
         JSONArray arr = loadRaw(context);
         arr.put(recipeToJson(recipe));
         saveRaw(context, arr);
     }
 
-    /** Cập nhật Recipe theo id. */
+    /**
+     * Cập nhật Recipe theo id.
+     */
     public static void UpdateRecipeById(Context context, String id, Recipe updated) {
         if (id == null || updated == null) return;
+        String current = SessionManager.getCurrentUsername(context);
         JSONArray src = loadRaw(context);
         JSONArray dst = new JSONArray();
         for (int i = 0; i < src.length(); i++) {
             JSONObject o = src.optJSONObject(i);
             Recipe r = jsonToRecipe(o);
-            if (r != null && id.equals(r.getId())) {
-                if (updated.getId() == null || updated.getId().isEmpty()) {
-                    updated.setId(id);
-                }
+            if (r != null && id.equals(r.getId()) && current.equals(r.getOwner())) {
+                // Keep id and owner stable
+                if (updated.getId() == null || updated.getId().isEmpty()) updated.setId(id);
+                updated.setOwner(current);
                 dst.put(recipeToJson(updated));
             } else {
                 dst.put(o);
@@ -114,15 +156,23 @@ public class RecipeDataManager {
         saveRaw(context, dst);
     }
 
-    /** Xoá Recipe theo id. */
+    /**
+     * Xoá Recipe theo id.
+     */
     public static void DeleteRecipeById(Context context, String id) {
         if (id == null) return;
+        String current = SessionManager.getCurrentUsername(context);
         JSONArray src = loadRaw(context);
         JSONArray dst = new JSONArray();
         for (int i = 0; i < src.length(); i++) {
             JSONObject o = src.optJSONObject(i);
             Recipe r = jsonToRecipe(o);
-            if (r == null || !id.equals(r.getId())) dst.put(o);
+            if (r == null) { dst.put(o); continue; }
+            if (id.equals(r.getId()) && current.equals(r.getOwner())) {
+                // skip to delete
+            } else {
+                dst.put(o);
+            }
         }
         saveRaw(context, dst);
     }
@@ -143,6 +193,7 @@ public class RecipeDataManager {
         r.setProtein(o.optInt("protein", 0));
         r.setCarbs(o.optInt("carbs", 0));
         r.setFat(o.optInt("fat", 0));
+        r.setOwner(o.optString(KEY_OWNER, ""));
 
         // ---- NEW: structured items ----
         List<Recipe.RecipeItem> items = new ArrayList<>();
@@ -207,6 +258,7 @@ public class RecipeDataManager {
             o.put("protein", r.getProtein());
             o.put("carbs", r.getCarbs());
             o.put("fat", r.getFat());
+            o.put(KEY_OWNER, r.getOwner() == null ? "" : r.getOwner());
 
             // ---- NEW: write structured items ----
             JSONArray itemsArr = new JSONArray();
@@ -228,7 +280,8 @@ public class RecipeDataManager {
                         ingJson.put("id", id);
                         ingJson.put("name", name);
                         JSONArray tagsArr = new JSONArray();
-                        if (ing.getTags() != null) for (String tag : ing.getTags()) tagsArr.put(tag);
+                        if (ing.getTags() != null)
+                            for (String tag : ing.getTags()) tagsArr.put(tag);
                         ingJson.put("tags", tagsArr);
                     }
                     itJson.put("ingredient", ingJson);
@@ -244,7 +297,8 @@ public class RecipeDataManager {
             }
             o.put("ingredients", safe(legacy));
 
-        } catch (JSONException ignore) {}
+        } catch (JSONException ignore) {
+        }
         return o;
     }
 
@@ -268,11 +322,12 @@ public class RecipeDataManager {
             if (line.isEmpty()) continue;
 
             // Try "name — qty" or "name - qty"
-            String name; String qty;
+            String name;
+            String qty;
             String[] dashSplit = line.split("\\s[—-]\\s", 2);
             if (dashSplit.length == 2) {
                 name = dashSplit[0].trim();
-                qty  = dashSplit[1].trim();
+                qty = dashSplit[1].trim();
             } else {
                 Matcher m = trailingQty.matcher(line);
                 if (m.find()) {
@@ -280,7 +335,7 @@ public class RecipeDataManager {
                     name = line.substring(0, m.start()).trim();
                 } else {
                     name = line;
-                    qty  = "";
+                    qty = "";
                 }
             }
 
@@ -298,7 +353,7 @@ public class RecipeDataManager {
             Recipe.RecipeItem it = items.get(i);
             String name = (it.getIngredient() != null && it.getIngredient().getName() != null)
                     ? it.getIngredient().getName() : "";
-            String qty  = it.getQuantity() == null ? "" : it.getQuantity().trim();
+            String qty = it.getQuantity() == null ? "" : it.getQuantity().trim();
             if (!name.isEmpty()) sb.append(name);
             if (!qty.isEmpty()) sb.append(" — ").append(qty);
             if (i < items.size() - 1) sb.append("\n");
@@ -306,55 +361,108 @@ public class RecipeDataManager {
         return sb.toString();
     }
 
-    private static String safe(String s) { return s == null ? "" : s; }
+    private static String safe(String s) {
+        return s == null ? "" : s;
+    }
 
     /* ---------------------------------------
      *  Legacy API giữ lại để không vỡ chỗ cũ (có thể xoá sau)
      * --------------------------------------- */
 
-    /** @deprecated dùng {@link #LoadAllRecipe(Context)} thay vì JSONArray thô. */
+    /**
+     * @deprecated dùng {@link #LoadAllRecipe(Context)} thay vì JSONArray thô.
+     */
     @Deprecated
     public static JSONArray loadRecipes(Context context) {
         return loadRaw(context);
     }
 
-    /** @deprecated dùng {@link #saveAll(Context, List)}. */
+    /**
+     * @deprecated dùng {@link #saveAll(Context, List)}.
+     */
     @Deprecated
     public static void saveData(Context context, JSONArray jsonArray) {
         saveRaw(context, jsonArray);
     }
 
-    /** @deprecated dùng {@link #AddRecipe(Context, Recipe)}. */
+    /**
+     * @deprecated dùng {@link #AddRecipe(Context, Recipe)}.
+     */
     @Deprecated
     public static void addRecipe(Context context, JSONObject recipeJson) {
+        if (recipeJson == null) return;
+        try {
+            String current = SessionManager.getCurrentUsername(context);
+            // Ensure id
+            if (!recipeJson.has("id") || recipeJson.optString("id", "").trim().isEmpty()) {
+                recipeJson.put("id", UUID.randomUUID().toString());
+            }
+            // Ensure owner
+            recipeJson.put(KEY_OWNER, current == null ? "" : current);
+        } catch (JSONException ignore) {}
         JSONArray recipes = loadRaw(context);
         recipes.put(recipeJson);
         saveRaw(context, recipes);
     }
 
-    /** @deprecated dùng {@link #DeleteRecipeById(Context, String)}. */
+    /**
+     * @deprecated dùng {@link #DeleteRecipeById(Context, String)}.
+     */
     @Deprecated
     public static void deleteRecipe(Context context, int index) {
-        JSONArray recipes = loadRaw(context);
-        JSONArray newList = new JSONArray();
-        for (int i = 0; i < recipes.length(); i++) {
-            if (i != index) {
-                JSONObject obj = recipes.optJSONObject(i);
-                if (obj != null) newList.put(obj);
+        String current = SessionManager.getCurrentUsername(context);
+        JSONArray src = loadRaw(context);
+        JSONArray dst = new JSONArray();
+        int currentUserIdx = 0; // counts only recipes of current user
+        for (int i = 0; i < src.length(); i++) {
+            JSONObject o = src.optJSONObject(i);
+            Recipe r = jsonToRecipe(o);
+            if (r != null && current.equals(r.getOwner())) {
+                if (currentUserIdx == index) {
+                    // skip to delete this user's index-th recipe
+                } else {
+                    dst.put(o);
+                }
+                currentUserIdx++;
+            } else {
+                // other users' recipes stay untouched
+                dst.put(o);
             }
         }
-        saveRaw(context, newList);
+        saveRaw(context, dst);
     }
 
-    /** @deprecated dùng {@link #UpdateRecipeById(Context, String, Recipe)}. */
+    /**
+     * @deprecated dùng {@link #UpdateRecipeById(Context, String, Recipe)}.
+     */
     @Deprecated
     public static void updateRecipe(Context context, int index, JSONObject updatedRecipe) {
-        JSONArray recipes = loadRaw(context);
-        try {
-            recipes.put(index, updatedRecipe);
-            saveRaw(context, recipes);
-        } catch (JSONException e) {
-            e.printStackTrace();
+        String current = SessionManager.getCurrentUsername(context);
+        JSONArray src = loadRaw(context);
+        JSONArray dst = new JSONArray();
+        int currentUserIdx = 0; // counts only recipes of current user
+        for (int i = 0; i < src.length(); i++) {
+            JSONObject o = src.optJSONObject(i);
+            Recipe r = jsonToRecipe(o);
+            if (r != null && current.equals(r.getOwner())) {
+                if (currentUserIdx == index) {
+                    try {
+                        // Preserve id and enforce owner
+                        String id = r.getId();
+                        if (id == null || id.isEmpty()) id = UUID.randomUUID().toString();
+                        if (updatedRecipe == null) updatedRecipe = new JSONObject();
+                        updatedRecipe.put("id", id);
+                        updatedRecipe.put(KEY_OWNER, current);
+                    } catch (JSONException ignore) {}
+                    dst.put(updatedRecipe);
+                } else {
+                    dst.put(o);
+                }
+                currentUserIdx++;
+            } else {
+                dst.put(o);
+            }
         }
+        saveRaw(context, dst);
     }
 }

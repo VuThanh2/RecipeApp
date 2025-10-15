@@ -8,6 +8,7 @@ import androidx.core.content.ContextCompat;
 import com.example.recipeapp.R;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.textfield.TextInputEditText;
+import Login.SessionManager;
 
 import RecipeManager.RecipeManagerActivity;
 
@@ -69,7 +70,7 @@ public class LoginActivity extends AppCompatActivity {
 
         if (UserDataManager.validateLogin(this, username, password)) {
             Toast.makeText(this, "Login successful!", Toast.LENGTH_SHORT).show();
-
+            SessionManager.setCurrentUsername(this, username);
             Intent intent = new Intent(LoginActivity.this, RecipeManagerActivity.class);
             intent.putExtra("username", username);
             startActivity(intent);
@@ -100,4 +101,6 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
+
+
 }

@@ -41,6 +41,8 @@ public class RecipeFormFragment extends Fragment {
     private String currentDietMode = "normal";
     private int normalColor, errorColor;
 
+    private static final String[] UNITS = {"g", "kg", "ml", "l", "pcs"};
+
     private final List<Recipe.RecipeItem> stagedItems = new ArrayList<>();
 
     public static RecipeFormFragment newInstance(@Nullable Recipe recipe) {
@@ -213,17 +215,18 @@ public class RecipeFormFragment extends Fragment {
             return;
         }
 
-        addCurrentChip();
+        addCurrentChipWithUnitPicker();
     }
 
-    private void addCurrentChip() {
-        String name = actvIngredient.getText() == null ? "" : actvIngredient.getText().toString().trim();
-        String qty = etQuantity.getText() == null ? "" : etQuantity.getText().toString().trim();
-        if (name.isEmpty()) return;
+    private void addCurrentChip(String name, String qty, String unit) {
+        if (name == null || name.trim().isEmpty()) return;
+        String safeQty = qty == null ? "" : qty.trim();
+        String safeUnit = unit == null ? "" : unit.trim();
 
         Recipe.Ingredient ing = new Recipe.Ingredient(null, name);
+        ing.setUnit(safeUnit);
         ing.setTags(tagsForName(name));
-        Recipe.RecipeItem item = new Recipe.RecipeItem(ing, qty);
+        Recipe.RecipeItem item = new Recipe.RecipeItem(ing, safeQty);
         stagedItems.add(item);
 
         addChipFromItem(item);
@@ -231,10 +234,32 @@ public class RecipeFormFragment extends Fragment {
         etQuantity.setText("");
     }
 
+    private void addCurrentChipWithUnitPicker() {
+        final String name = actvIngredient.getText() == null ? "" : actvIngredient.getText().toString().trim();
+        final String qty = etQuantity.getText() == null ? "" : etQuantity.getText().toString().trim();
+        if (name.isEmpty()) return;
+
+        final int[] chosenIndex = {0};
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Select unit")
+                .setSingleChoiceItems(UNITS, 0, (d, which) -> chosenIndex[0] = which)
+                .setPositiveButton("OK", (d, w) -> {
+                    String unit = UNITS[chosenIndex[0]];
+                    addCurrentChip(name, qty, unit);
+                })
+                .setNegativeButton("Cancel", (d, w) -> {
+                    // default to pcs if user cancels
+                    addCurrentChip(name, qty, "pcs");
+                })
+                .show();
+    }
+
     private void addChipFromItem(Recipe.RecipeItem item) {
         String name = item.getIngredient() != null ? item.getIngredient().getName() : "";
         String qty = item.getQuantity() == null ? "" : item.getQuantity().trim();
-        String label = name + (qty.isEmpty() ? "" : " — " + qty);
+        String unit = (item.getIngredient() != null && item.getIngredient().getUnit() != null) ? item.getIngredient().getUnit().trim() : "";
+        String qtyUnit = qty.isEmpty() ? "" : (unit.isEmpty() ? qty : (qty + " " + unit));
+        String label = name + (qtyUnit.isEmpty() ? "" : " — " + qtyUnit);
 
         Chip chip = new Chip(requireContext());
         boolean allowed = DietRules.isAllowed(item.getIngredient(), currentDietMode);

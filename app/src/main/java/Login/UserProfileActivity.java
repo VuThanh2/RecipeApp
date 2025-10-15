@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.recipeapp.R;
 import android.widget.AutoCompleteTextView;
 import android.widget.ArrayAdapter;
+import Login.SessionManager;
 
 public class UserProfileActivity extends AppCompatActivity {
     private TextView textUsername;
@@ -42,8 +43,14 @@ public class UserProfileActivity extends AppCompatActivity {
             dietInput.setText(dietLabels[0], false);
         }
 
-        Intent intent = getIntent();
-        currentUsername = intent.getStringExtra("username");
+        currentUsername = SessionManager.getCurrentUsername(this);
+        if (currentUsername == null || currentUsername.isEmpty()) {
+            Intent back = new Intent(this, LoginActivity.class);
+            back.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(back);
+            finish();
+            return;
+        }
         textUsername.setText(currentUsername);
 
         String currentDiet = UserDataManager.getDietMode(this, currentUsername);
@@ -58,6 +65,7 @@ public class UserProfileActivity extends AppCompatActivity {
         });
 
         buttonLogout.setOnClickListener(v -> {
+            SessionManager.clear(this);
             Toast.makeText(this, "Logged out", Toast.LENGTH_SHORT).show();
             Intent logoutIntent = new Intent(this, LoginActivity.class);
             logoutIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);

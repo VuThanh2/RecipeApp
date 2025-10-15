@@ -6,11 +6,14 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
+
 import com.example.recipeapp.R;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -109,10 +112,22 @@ public class RecipeFilterDialogFragment extends DialogFragment {
         if (cbVegetarian.isChecked()) categories.add("Vegetarian");
         filterItem.categories = categories;
 
-        try { filterItem.minCalories = Integer.parseInt(etMinCalories.getText().toString()); } catch (Exception ignored) {}
-        try { filterItem.maxCalories = Integer.parseInt(etMaxCalories.getText().toString()); } catch (Exception ignored) {}
-        try { filterItem.minProtein = Integer.parseInt(etMinProtein.getText().toString()); } catch (Exception ignored) {}
-        try { filterItem.maxProtein = Integer.parseInt(etMaxProtein.getText().toString()); } catch (Exception ignored) {}
+        try {
+            filterItem.minCalories = Integer.parseInt(etMinCalories.getText().toString());
+        } catch (Exception ignored) {
+        }
+        try {
+            filterItem.maxCalories = Integer.parseInt(etMaxCalories.getText().toString());
+        } catch (Exception ignored) {
+        }
+        try {
+            filterItem.minProtein = Integer.parseInt(etMinProtein.getText().toString());
+        } catch (Exception ignored) {
+        }
+        try {
+            filterItem.maxProtein = Integer.parseInt(etMaxProtein.getText().toString());
+        } catch (Exception ignored) {
+        }
 
         return filterItem;
     }

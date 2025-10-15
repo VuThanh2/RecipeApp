@@ -16,6 +16,8 @@ import RecipeManager.Recipe;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 
+import Login.SessionManager;
+
 public class WeeklyAdapter extends RecyclerView.Adapter<WeeklyAdapter.DayVH> {
 
     public interface Listener {
@@ -33,6 +35,14 @@ public class WeeklyAdapter extends RecyclerView.Adapter<WeeklyAdapter.DayVH> {
     private String dietMode = "normal";   // normal | vegan | keto | gluten_free
     private String filterPolicy = "warn"; // warn | hide
 
+    private String normalizeWeekId(String id) {
+        if (id == null) return null;
+        if (id.contains("::")) return id; // already namespaced
+        String user = SessionManager.getCurrentUsername(ctx);
+        if (user == null || user.isEmpty()) return id; // best effort
+        return user.trim().toLowerCase() + "::" + id;
+    }
+
     public void setDietMode(String diet) {
         if (diet == null) return;
         this.dietMode = diet.trim().toLowerCase();
@@ -46,13 +56,23 @@ public class WeeklyAdapter extends RecyclerView.Adapter<WeeklyAdapter.DayVH> {
     }
 
     public WeeklyAdapter(Context ctx, String weekId, Listener listener) {
-        this.ctx = ctx; this.weekId = weekId; this.listener = listener;
+        this.ctx = ctx; this.listener = listener;
+        this.weekId = normalizeWeekId(weekId);
         reload();
     }
 
-    public void setWeekId(String weekId) { this.weekId = weekId; reload(); notifyDataSetChanged(); }
+    public void setWeekId(String weekId) {
+        this.weekId = normalizeWeekId(weekId);
+        reload();
+        notifyDataSetChanged();
+    }
     public void reload() {
-        data = MealPlanManager.getWeek(ctx, weekId);
+        String id = normalizeWeekId(this.weekId);
+        if (id == null) {
+            data = new HashMap<>();
+        } else {
+            data = MealPlanManager.getWeek(ctx, id);
+        }
     }
 
 

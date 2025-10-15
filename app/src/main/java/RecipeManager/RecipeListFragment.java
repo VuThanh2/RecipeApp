@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import Login.UserDataManager;
+import Login.SessionManager;
 
 public class RecipeListFragment extends Fragment {
     private RecyclerView rvPinned, rvUnpinned;
@@ -159,20 +160,21 @@ public class RecipeListFragment extends Fragment {
     }
 
     private void resolveDietContext() {
-        // Get username/policy from Intent if provided; defaults keep app working
-        String username = null;
+        // Read optional diet policy from Intent for backward compatibility
         if (requireActivity().getIntent() != null) {
-            username = requireActivity().getIntent().getStringExtra("username");
             String policyExtra = requireActivity().getIntent().getStringExtra("dietPolicy");
-            if (policyExtra != null) filterPolicy = "hide".equalsIgnoreCase(policyExtra) ? "hide" : "warn";
+            if (policyExtra != null) {
+                filterPolicy = "hide".equalsIgnoreCase(policyExtra) ? "hide" : "warn";
+            }
         }
-        // Diet mode comes from UserDataManager if username is available; else default "normal"
+
+        // Always resolve current user from SessionManager
+        String username = SessionManager.getCurrentUsername(requireContext());
         if (username != null && !username.isEmpty()) {
             dietMode = UserDataManager.getDietMode(requireContext(), username);
         } else {
-            dietMode = "normal";
+            dietMode = "normal"; // fallback when no session (shouldn't happen after login)
         }
-
     }
 
     private void applyDietContextToAdapters() {

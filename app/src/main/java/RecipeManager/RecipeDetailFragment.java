@@ -22,7 +22,9 @@ public class RecipeDetailFragment extends Fragment {
     private Button btnEdit, btnDelete;
     private ImageView ivRecipeImage;
 
-    /** Khởi tạo theo Recipe (không còn index). */
+    /**
+     * Khởi tạo theo Recipe (không còn index).
+     */
     public static RecipeDetailFragment newInstance(Recipe recipe) {
         RecipeDetailFragment fragment = new RecipeDetailFragment();
         Bundle args = new Bundle();
