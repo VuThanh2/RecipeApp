@@ -33,7 +33,6 @@ public class RecipeFormFragment extends Fragment {
     private TextInputEditText etTitle, etInstructions, etQuantity, etCalories, etCarbs, etFat, etProtein;
     private AutoCompleteTextView actvCategory, actvIngredient;
     private ChipGroup chipGroupItems;
-    private Button btnSave;
     private ImageView ivRecipeImage, btnPin;
     private Recipe recipe;
     private int selectedImage = R.drawable.default_background;
@@ -72,7 +71,7 @@ public class RecipeFormFragment extends Fragment {
         layoutIngredient = view.findViewById(R.id.layoutIngredient);
         layoutQuantity = view.findViewById(R.id.layoutQuantity);
 
-        btnSave = view.findViewById(R.id.btnSave);
+        Button btnSave = view.findViewById(R.id.btnSave);
         ivRecipeImage = view.findViewById(R.id.ivRecipeImage);
         btnPin = view.findViewById(R.id.btnPin);
 

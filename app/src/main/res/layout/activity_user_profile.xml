@@ -49,19 +49,21 @@
 
     <Button
         android:id="@+id/buttonSaveProfile"
-        android:text="Save Profile"
-        android:layout_width="wrap_content"
+        android:layout_width="125dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:backgroundTint="@color/green_primary"
-        android:textColor="@color/white"/>
+        app:cornerRadius="12dp"
+        android:text="Save Profile"
+        android:textColor="@color/white" />
 
     <Button
         android:id="@+id/buttonLogout"
         android:text="Logout"
-        android:layout_width="wrap_content"
+        android:layout_width="125dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="14dp"
         android:backgroundTint="@color/green_primary"
+        app:cornerRadius="12dp"
         android:textColor="@color/white" />
 </LinearLayout>

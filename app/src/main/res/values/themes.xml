@@ -1,8 +1,25 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
     <style name="Base.Theme.RecipeApp" parent="Theme.Material3.Light.NoActionBar">
         <item name="android:statusBarColor">@color/green_primary</item>
         <item name="android:windowLightStatusBar">false</item>
+
+        <item name="actionModeStyle">@style/CustomActionMode</item>
+        <item name="actionBarTheme">@style/ThemeOverlay.AppCompat.ActionBar</item>
+        <item name="actionModeCloseButtonStyle">@style/ActionModeCloseButton</item>
     </style>
+
+    <style name="CustomActionMode" parent="Widget.AppCompat.ActionMode">
+        <item name="background">@color/green_primary</item>
+        <item name="titleTextStyle">@style/ActionModeTitle</item>
+        <item name="subtitleTextStyle">@style/ActionModeTitle</item>
+    </style>
+
+    <style name="ActionModeTitle" parent="TextAppearance.AppCompat.Widget.ActionMode.Title">
+        <item name="android:textColor">@color/white</item>
+    </style>
+    <style name="ActionModeCloseButton" parent="Widget.AppCompat.ActionButton.CloseMode">
+        <item name="tint">@color/white</item>
+    </style>
+
     <style name="Theme.RecipeApp" parent="Base.Theme.RecipeApp" />
 </resources>

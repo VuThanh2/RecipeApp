@@ -7,15 +7,6 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <TextView
-            android:id="@+id/tvTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Recipe Title"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="8dp"/>
-
         <ImageView
             android:id="@+id/ivRecipeBackground"
             android:layout_width="match_parent"
@@ -25,11 +16,23 @@
             android:src="@drawable/default_background" />
 
         <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Recipe Title"
+            android:gravity="center_horizontal"
+            android:layout_marginTop="16dp"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
             android:id="@+id/tvCategory"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Category"
             android:textSize="16sp"
+            android:layout_marginTop="16dp"
             android:textColor="#666"
             android:layout_marginBottom="8dp"/>
 
@@ -38,6 +41,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Ingredients"
+            android:layout_marginTop="16dp"
             android:layout_marginBottom="8dp"/>
 
         <TextView
@@ -45,6 +49,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Instructions"
+            android:layout_marginTop="16dp"
             android:layout_marginBottom="16dp"/>
 
         <Button

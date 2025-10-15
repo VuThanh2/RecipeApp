@@ -262,6 +262,7 @@
             android:layout_height="wrap_content"
             android:text="Save"
             android:layout_marginTop="16dp"
+            app:cornerRadius="12dp"
             android:backgroundTint="@color/green_primary"/>
     </LinearLayout>
 </ScrollView>

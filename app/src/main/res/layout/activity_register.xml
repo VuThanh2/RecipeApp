@@ -27,6 +27,7 @@
         app:boxBackgroundMode="outline"
         app:boxStrokeColor="@android:color/white"
         app:hintTextColor="@android:color/white"
+        android:textColorHint="@android:color/white"
         app:boxCornerRadiusTopStart="8dp"
         app:boxCornerRadiusTopEnd="8dp"
         app:boxCornerRadiusBottomStart="8dp"
@@ -40,13 +41,11 @@
             android:inputType="textPersonName"
             android:drawableStart="@android:drawable/ic_menu_edit"
             android:drawablePadding="8dp"
-            android:drawableTint="@android:color/white"
             android:padding="12dp"
             android:textColor="@android:color/white"
             android:textColorHint="@android:color/white" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Password -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/layoutPassword"
         android:layout_width="match_parent"
@@ -55,6 +54,7 @@
         app:boxBackgroundMode="outline"
         app:boxStrokeColor="@android:color/white"
         app:hintTextColor="@android:color/white"
+        android:textColorHint="@android:color/white"
         app:boxCornerRadiusTopStart="8dp"
         app:boxCornerRadiusTopEnd="8dp"
         app:boxCornerRadiusBottomStart="8dp"
@@ -82,6 +82,7 @@
         app:boxBackgroundMode="outline"
         app:boxStrokeColor="@android:color/white"
         app:hintTextColor="@android:color/white"
+        android:textColorHint="@android:color/white"
         app:boxCornerRadiusTopStart="8dp"
         app:boxCornerRadiusTopEnd="8dp"
         app:boxCornerRadiusBottomStart="8dp"
