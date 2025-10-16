@@ -42,8 +42,8 @@ public class LoginActivity extends AppCompatActivity {
         registerLink = findViewById(R.id.txtRegister);
         forgotPasswordLink = findViewById(R.id.txtForgotPassword);
 
-        normalColor = ContextCompat.getColor(this, android.R.color.white);
-        errorColor = ContextCompat.getColor(this, android.R.color.holo_red_dark);
+        normalColor = ContextCompat.getColor(this, R.color.white);
+        errorColor = ContextCompat.getColor(this, R.color.red_light);
 
         int accentColor = ContextCompat.getColor(this, android.R.color.white);
         registerLink.setTextColor(accentColor);

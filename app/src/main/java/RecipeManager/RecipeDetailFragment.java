@@ -23,6 +23,7 @@ import java.util.List;
 public class RecipeDetailFragment extends Fragment {
     private Recipe recipe;
     private TextView tvTitle, tvCategory, tvIngredients, tvInstructions;
+    private TextView tvCalories, tvCarbs, tvFat, tvProtein;
     private ImageView ivRecipeImage;
     private FloatingActionButton fabMenu;
 
@@ -48,6 +49,10 @@ public class RecipeDetailFragment extends Fragment {
         tvCategory = view.findViewById(R.id.tvCategory);
         tvIngredients = view.findViewById(R.id.tvIngredients);
         tvInstructions = view.findViewById(R.id.tvInstructions);
+        tvCalories = view.findViewById(R.id.tvCalories);
+        tvCarbs = view.findViewById(R.id.tvCarb);
+        tvFat = view.findViewById(R.id.tvFat);
+        tvProtein = view.findViewById(R.id.tvProtein);
         fabMenu = view.findViewById(R.id.fabMenu);
 
         loadRecipeFromArgs();
@@ -120,6 +125,10 @@ public class RecipeDetailFragment extends Fragment {
         tvIngredients.setText(recipe.getIngredients());
         tvInstructions.setText(recipe.getInstructions());
         ivRecipeImage.setImageResource(recipe.getImage());
+        tvCalories.setText(getString(R.string.label_calories, recipe.getCalories()));
+        tvCarbs.setText(getString(R.string.label_carbs, recipe.getCarbs()));
+        tvFat.setText(getString(R.string.label_fat, recipe.getFat()));
+        tvProtein.setText(getString(R.string.label_protein, recipe.getProtein()));
     }
 
     private void copyRecipe() {

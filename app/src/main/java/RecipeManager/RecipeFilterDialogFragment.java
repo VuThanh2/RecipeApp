@@ -58,6 +58,10 @@ public class RecipeFilterDialogFragment extends DialogFragment {
 
         EditText etMinCalories = view.findViewById(R.id.etMinCalories);
         EditText etMaxCalories = view.findViewById(R.id.etMaxCalories);
+        EditText etMinFat = view.findViewById(R.id.etMinFat);
+        EditText etMaxFat = view.findViewById(R.id.etMaxFat);
+        EditText etMinCarbs = view.findViewById(R.id.etMinCarbs);
+        EditText etMaxCarbs = view.findViewById(R.id.etMaxCarbs);
         EditText etMinProtein = view.findViewById(R.id.etMinProtein);
         EditText etMaxProtein = view.findViewById(R.id.etMaxProtein);
 
@@ -65,11 +69,11 @@ public class RecipeFilterDialogFragment extends DialogFragment {
         Button btnReset = view.findViewById(R.id.btnReset);
 
         LoadFilterWhenOpen(currentFilter, cbBreakfast, cbLunch, cbDinner, cbDessert, cbVegetarian,
-                etMinCalories, etMaxCalories, etMinProtein, etMaxProtein);
+                etMinCalories, etMaxCalories, etMinProtein, etMaxProtein, etMinFat, etMaxFat, etMinCarbs, etMaxCarbs);
 
         btnApply.setOnClickListener(v -> {
             RecipeFilterItem filterItem = CollectFilter(cbBreakfast, cbLunch, cbDinner, cbDessert, cbVegetarian,
-                    etMinCalories, etMaxCalories, etMinProtein, etMaxProtein);
+                    etMinCalories, etMaxCalories, etMinProtein, etMaxProtein, etMinFat, etMaxFat, etMinCarbs, etMaxCarbs);
 
             currentFilter = filterItem;
             if (listener != null) listener.onFilterApplied(filterItem);
@@ -82,10 +86,15 @@ public class RecipeFilterDialogFragment extends DialogFragment {
             cbDinner.setChecked(false);
             cbDessert.setChecked(false);
             cbVegetarian.setChecked(false);
+
             etMinCalories.setText("");
             etMaxCalories.setText("");
             etMinProtein.setText("");
             etMaxProtein.setText("");
+            etMinFat.setText("");
+            etMaxFat.setText("");
+            etMinCarbs.setText("");
+            etMaxCarbs.setText("");
 
             currentFilter = new RecipeFilterItem();
             if (listener != null && isAdded()) listener.onFilterApplied(new RecipeFilterItem());
@@ -102,7 +111,9 @@ public class RecipeFilterDialogFragment extends DialogFragment {
     private RecipeFilterItem CollectFilter(CheckBox cbBreakfast, CheckBox cbLunch, CheckBox cbDinner,
                                            CheckBox cbDessert, CheckBox cbVegetarian,
                                            EditText etMinCalories, EditText etMaxCalories,
-                                           EditText etMinProtein, EditText etMaxProtein) {
+                                           EditText etMinProtein, EditText etMaxProtein,
+                                           EditText etMinFat, EditText etMaxFat,
+                                           EditText etMinCarbs, EditText etMaxCarbs) {
         RecipeFilterItem filterItem = new RecipeFilterItem();
         List<String> categories = new ArrayList<>();
         if (cbBreakfast.isChecked()) categories.add("Breakfast");
@@ -112,22 +123,14 @@ public class RecipeFilterDialogFragment extends DialogFragment {
         if (cbVegetarian.isChecked()) categories.add("Vegetarian");
         filterItem.categories = categories;
 
-        try {
-            filterItem.minCalories = Integer.parseInt(etMinCalories.getText().toString());
-        } catch (Exception ignored) {
-        }
-        try {
-            filterItem.maxCalories = Integer.parseInt(etMaxCalories.getText().toString());
-        } catch (Exception ignored) {
-        }
-        try {
-            filterItem.minProtein = Integer.parseInt(etMinProtein.getText().toString());
-        } catch (Exception ignored) {
-        }
-        try {
-            filterItem.maxProtein = Integer.parseInt(etMaxProtein.getText().toString());
-        } catch (Exception ignored) {
-        }
+        try { filterItem.minCalories = Integer.parseInt(etMinCalories.getText().toString()); } catch (Exception ignored) {}
+        try { filterItem.maxCalories = Integer.parseInt(etMaxCalories.getText().toString()); } catch (Exception ignored) {}
+        try { filterItem.minProtein = Integer.parseInt(etMinProtein.getText().toString()); } catch (Exception ignored) {}
+        try { filterItem.maxProtein = Integer.parseInt(etMaxProtein.getText().toString()); } catch (Exception ignored) {}
+        try { filterItem.minFat = Integer.parseInt(etMinFat.getText().toString()); } catch (Exception ignored) {}
+        try { filterItem.maxFat = Integer.parseInt(etMaxFat.getText().toString()); } catch (Exception ignored) {}
+        try { filterItem.minCarbs = Integer.parseInt(etMinCarbs.getText().toString()); } catch (Exception ignored) {}
+        try { filterItem.maxCarbs = Integer.parseInt(etMaxCarbs.getText().toString()); } catch (Exception ignored) {}
 
         return filterItem;
     }
@@ -136,7 +139,9 @@ public class RecipeFilterDialogFragment extends DialogFragment {
                                     CheckBox cbBreakfast, CheckBox cbLunch, CheckBox cbDinner,
                                     CheckBox cbDessert, CheckBox cbVegetarian,
                                     EditText etMinCalories, EditText etMaxCalories,
-                                    EditText etMinProtein, EditText etMaxProtein) {
+                                    EditText etMinProtein, EditText etMaxProtein,
+                                    EditText etMinFat, EditText etMaxFat,
+                                    EditText etMinCarbs, EditText etMaxCarbs) {
         if (filter == null) return;
 
         cbBreakfast.setChecked(filter.categories.contains("Breakfast"));
@@ -149,5 +154,9 @@ public class RecipeFilterDialogFragment extends DialogFragment {
         etMaxCalories.setText(filter.maxCalories < Integer.MAX_VALUE ? String.valueOf(filter.maxCalories) : "");
         etMinProtein.setText(filter.minProtein > 0 ? String.valueOf(filter.minProtein) : "");
         etMaxProtein.setText(filter.maxProtein < Integer.MAX_VALUE ? String.valueOf(filter.maxProtein) : "");
+        etMinFat.setText(filter.minFat > 0 ? String.valueOf(filter.minFat) : "");
+        etMaxFat.setText(filter.maxFat < Integer.MAX_VALUE ? String.valueOf(filter.maxFat) : "");
+        etMinCarbs.setText(filter.minCarbs > 0 ? String.valueOf(filter.minCarbs) : "");
+        etMaxCarbs.setText(filter.maxCarbs < Integer.MAX_VALUE ? String.valueOf(filter.maxCarbs) : "");
     }
 }

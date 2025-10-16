@@ -76,7 +76,7 @@ public class RecipeFormFragment extends Fragment {
         btnPin = view.findViewById(R.id.btnPin);
 
         normalColor = ContextCompat.getColor(requireContext(), R.color.green_primary);
-        errorColor = ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark);
+        errorColor = ContextCompat.getColor(requireContext(), R.color.red_light);
 
         String usernameArg = requireActivity().getIntent() != null
                 ? requireActivity().getIntent().getStringExtra("username") : null;

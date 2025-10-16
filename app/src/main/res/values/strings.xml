@@ -2,4 +2,8 @@
     <string name="app_name">RecipeApp</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="label_calories">Calories: %1$d kcal</string>
+    <string name="label_carbs">Carbs: %1$d g</string>
+    <string name="label_fat">Fat: %1$d g</string>
+    <string name="label_protein">Protein: %1$d g</string>
 </resources>

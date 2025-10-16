@@ -30,7 +30,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         resetPasswordButton = findViewById(R.id.btnResetPassword);
 
         normalColor = ContextCompat.getColor(this, R.color.white);
-        errorColor = ContextCompat.getColor(this, android.R.color.holo_red_dark);
+        errorColor = ContextCompat.getColor(this, R.color.red_light);
 
         resetPasswordButton.setOnClickListener(v -> ValidateAndResetPassword());
 

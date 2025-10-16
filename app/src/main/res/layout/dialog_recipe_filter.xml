@@ -1,6 +1,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:padding="16dp">
 
     <LinearLayout
@@ -58,7 +59,8 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:inputType="number"
-                android:hint="Min" />
+                android:hint="Min"
+                android:imeOptions="actionDone"/>
 
             <EditText
                 android:id="@+id/etMaxCalories"
@@ -67,7 +69,72 @@
                 android:inputType="number"
                 android:hint="Max"
                 android:layout_marginStart="8dp"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:imeOptions="actionDone"/>
+        </LinearLayout>
+
+        <TextView
+            android:text="Carbs"
+            android:textStyle="bold"
+            android:layout_marginTop="12dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/etMinCarbs"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:hint="Min"
+                android:imeOptions="actionDone"/>
+
+            <EditText
+                android:id="@+id/etMaxCarbs"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:inputType="number"
+                android:hint="Max"
+                android:layout_marginStart="8dp"
+                android:layout_height="wrap_content"
+                android:imeOptions="actionDone"/>
+        </LinearLayout>
+
+        <TextView
+            android:text="Fat"
+            android:textStyle="bold"
+            android:layout_marginTop="12dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/etMinFat"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:hint="Min"
+                android:imeOptions="actionDone"/>
+
+            <EditText
+                android:id="@+id/etMaxFat"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:inputType="number"
+                android:hint="Max"
+                android:layout_marginStart="8dp"
+                android:layout_height="wrap_content"
+                android:imeOptions="actionDone"/>
         </LinearLayout>
 
         <TextView
@@ -88,7 +155,8 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:inputType="number"
-                android:hint="Min" />
+                android:hint="Min"
+                android:imeOptions="actionDone"/>
 
             <EditText
                 android:id="@+id/etMaxProtein"
@@ -97,23 +165,28 @@
                 android:layout_height="wrap_content"
                 android:inputType="number"
                 android:hint="Max"
-                android:layout_marginStart="8dp"/>
+                android:layout_marginStart="8dp"
+                android:imeOptions="actionDone"/>
         </LinearLayout>
 
         <Button
             android:id="@+id/btnApplyFilter"
-            android:layout_width="match_parent"
+            android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:text="Apply"
             android:layout_marginTop="16dp"
+            app:cornerRadius="12dp"
+            android:layout_gravity="center_horizontal"
             android:backgroundTint="@color/green_primary"/>
 
         <Button
             android:id="@+id/btnReset"
-            android:layout_width="match_parent"
+            android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:text="Reset"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="12dp"
+            app:cornerRadius="12dp"
+            android:layout_gravity="center_horizontal"
             android:backgroundTint="@color/green_primary"/>
     </LinearLayout>
 </ScrollView>
