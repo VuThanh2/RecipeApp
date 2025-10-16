@@ -76,9 +76,11 @@
             android:drawableStart="@android:drawable/ic_lock_idle_lock"
             android:drawablePadding="8dp"
             android:padding="12dp"
+            android:imeOptions="actionDone"
             android:textColor="@android:color/white"
             android:textColorHint="@android:color/white" />
     </com.google.android.material.textfield.TextInputLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -104,7 +106,6 @@
             android:text="Forgot password?"
             android:textColor="@android:color/white" />
     </LinearLayout>
-
 
     <Button
         android:id="@+id/btnLogin"

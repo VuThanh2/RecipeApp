@@ -41,6 +41,7 @@
             android:inputType="textPersonName"
             android:drawableStart="@android:drawable/ic_menu_edit"
             android:drawablePadding="8dp"
+            android:imeOptions="actionDone"
             android:padding="12dp"
             android:textColor="@android:color/white"
             android:textColorHint="@android:color/white" />
@@ -69,6 +70,7 @@
             android:drawableStart="@android:drawable/ic_lock_idle_lock"
             android:drawablePadding="8dp"
             android:drawableTint="@android:color/white"
+            android:imeOptions="actionDone"
             android:padding="12dp"
             android:textColor="@android:color/white"
             android:textColorHint="@android:color/white" />
@@ -97,6 +99,7 @@
             android:drawableStart="@android:drawable/ic_lock_lock"
             android:drawablePadding="8dp"
             android:drawableTint="@android:color/white"
+            android:imeOptions="actionDone"
             android:padding="12dp"
             android:textColor="@android:color/white"
             android:textColorHint="@android:color/white" />
