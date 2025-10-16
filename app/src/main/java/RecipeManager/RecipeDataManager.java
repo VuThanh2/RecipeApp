@@ -209,6 +209,7 @@ public class RecipeDataManager {
                 if (ingJson != null) {
                     ing.setId(ingJson.optString("id", null));
                     ing.setName(ingJson.optString("name", ""));
+                    ing.setUnit(ingJson.optString("unit", ""));
                     JSONArray tagsArr = ingJson.optJSONArray("tags");
                     if (tagsArr != null) {
                         List<String> tags = new ArrayList<>();
@@ -273,12 +274,14 @@ public class RecipeDataManager {
                     if (ing == null) {
                         ingJson.put("id", "");
                         ingJson.put("name", "");
+                        ingJson.put("unit", "");
                         ingJson.put("tags", new JSONArray());
                     } else {
                         String name = ing.getName() == null ? "" : ing.getName();
                         String id = ing.getId() == null || ing.getId().isEmpty() ? stableIngredientId(name) : ing.getId();
                         ingJson.put("id", id);
                         ingJson.put("name", name);
+                        ingJson.put("unit", ing.getUnit() == null ? "" : ing.getUnit());
                         JSONArray tagsArr = new JSONArray();
                         if (ing.getTags() != null)
                             for (String tag : ing.getTags()) tagsArr.put(tag);
@@ -354,8 +357,13 @@ public class RecipeDataManager {
             String name = (it.getIngredient() != null && it.getIngredient().getName() != null)
                     ? it.getIngredient().getName() : "";
             String qty = it.getQuantity() == null ? "" : it.getQuantity().trim();
+            String unit = (it.getIngredient() != null && it.getIngredient().getUnit() != null)
+                    ? it.getIngredient().getUnit().trim() : "";
             if (!name.isEmpty()) sb.append(name);
-            if (!qty.isEmpty()) sb.append(" — ").append(qty);
+            if (!qty.isEmpty()) {
+                sb.append(" — ").append(qty);
+                if (!unit.isEmpty()) sb.append(" ").append(unit);
+            }
             if (i < items.size() - 1) sb.append("\n");
         }
         return sb.toString();

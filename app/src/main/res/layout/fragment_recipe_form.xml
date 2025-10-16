@@ -28,14 +28,18 @@
             app:boxCornerRadiusTopStart="8dp"
             app:boxCornerRadiusTopEnd="8dp"
             app:boxCornerRadiusBottomStart="8dp"
-            app:boxCornerRadiusBottomEnd="8dp">
+            app:boxCornerRadiusBottomEnd="8dp"
+            app:boxStrokeColor="@color/black"
+            app:hintTextColor="@color/black">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Title"
-                android:inputType="text"/>
+                android:inputType="text"
+                android:textColor="@android:color/black"
+                android:textColorHint="@android:color/black"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <ImageView
@@ -80,7 +84,9 @@
             app:boxCornerRadiusTopEnd="8dp"
             app:boxCornerRadiusBottomStart="8dp"
             app:boxCornerRadiusBottomEnd="8dp"
-            app:endIconMode="clear_text">
+            app:endIconMode="clear_text"
+            app:boxStrokeColor="@color/black"
+            app:hintTextColor="@color/black">
 
             <AutoCompleteTextView
                 android:id="@+id/actvIngredient"
@@ -91,7 +97,9 @@
                 android:hint="Add ingredient..."
                 android:textSize="16sp"
                 android:imeOptions="actionDone"
-                android:inputType="text" />
+                android:inputType="text"
+                android:textColor="@android:color/black"
+                android:textColorHint="@android:color/black"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -104,7 +112,9 @@
             app:boxCornerRadiusTopEnd="8dp"
             app:boxCornerRadiusBottomStart="8dp"
             app:boxCornerRadiusBottomEnd="8dp"
-            app:endIconMode="clear_text">
+            app:endIconMode="clear_text"
+            app:boxStrokeColor="@color/black"
+            app:hintTextColor="@color/black">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etQuantity"
@@ -113,7 +123,9 @@
                 android:inputType="number"
                 android:hint="Quantity of ingredients"
                 android:digits="0123456789"
-                android:imeOptions="actionDone"/>
+                android:imeOptions="actionDone"
+                android:textColor="@android:color/black"
+                android:textColorHint="@android:color/black"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.chip.ChipGroup
@@ -133,7 +145,9 @@
             app:boxCornerRadiusTopStart="8dp"
             app:boxCornerRadiusTopEnd="8dp"
             app:boxCornerRadiusBottomStart="8dp"
-            app:boxCornerRadiusBottomEnd="8dp">
+            app:boxCornerRadiusBottomEnd="8dp"
+            app:boxStrokeColor="@color/black"
+            app:hintTextColor="@color/black">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etInstructions"
@@ -141,7 +155,9 @@
                 android:layout_height="200dp"
                 android:gravity="top"
                 android:hint="Instructions"
-                android:inputType="textMultiLine"/>
+                android:inputType="textMultiLine"
+                android:textColor="@android:color/black"
+                android:textColorHint="@android:color/black"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <LinearLayout
@@ -168,7 +184,9 @@
                     app:boxCornerRadiusTopStart="8dp"
                     app:boxCornerRadiusTopEnd="8dp"
                     app:boxCornerRadiusBottomStart="8dp"
-                    app:boxCornerRadiusBottomEnd="8dp">
+                    app:boxCornerRadiusBottomEnd="8dp"
+                    app:boxStrokeColor="@color/black"
+                    app:hintTextColor="@color/black">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etCalories"
@@ -178,7 +196,9 @@
                         android:inputType="number"
                         android:gravity="center"
                         android:digits="0123456789"
-                        android:imeOptions="actionDone"/>
+                        android:imeOptions="actionDone"
+                        android:textColor="@android:color/black"
+                        android:textColorHint="@android:color/black"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -190,7 +210,9 @@
                     app:boxCornerRadiusTopStart="8dp"
                     app:boxCornerRadiusTopEnd="8dp"
                     app:boxCornerRadiusBottomStart="8dp"
-                    app:boxCornerRadiusBottomEnd="8dp">
+                    app:boxCornerRadiusBottomEnd="8dp"
+                    app:boxStrokeColor="@color/black"
+                    app:hintTextColor="@color/black">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etCarbs"
@@ -200,7 +222,9 @@
                         android:inputType="number"
                         android:gravity="center"
                         android:digits="0123456789"
-                        android:imeOptions="actionDone"/>
+                        android:imeOptions="actionDone"
+                        android:textColor="@android:color/black"
+                        android:textColorHint="@android:color/black"/>
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 
@@ -219,7 +243,9 @@
                     app:boxCornerRadiusTopStart="8dp"
                     app:boxCornerRadiusTopEnd="8dp"
                     app:boxCornerRadiusBottomStart="8dp"
-                    app:boxCornerRadiusBottomEnd="8dp">
+                    app:boxCornerRadiusBottomEnd="8dp"
+                    app:boxStrokeColor="@color/black"
+                    app:hintTextColor="@color/black">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etFat"
@@ -229,7 +255,9 @@
                         android:inputType="number"
                         android:gravity="center"
                         android:digits="0123456789"
-                        android:imeOptions="actionDone"/>
+                        android:imeOptions="actionDone"
+                        android:textColor="@android:color/black"
+                        android:textColorHint="@android:color/black"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -241,7 +269,9 @@
                     app:boxCornerRadiusTopStart="8dp"
                     app:boxCornerRadiusTopEnd="8dp"
                     app:boxCornerRadiusBottomStart="8dp"
-                    app:boxCornerRadiusBottomEnd="8dp">
+                    app:boxCornerRadiusBottomEnd="8dp"
+                    app:boxStrokeColor="@color/black"
+                    app:hintTextColor="@color/black">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etProtein"
@@ -251,7 +281,9 @@
                         android:inputType="number"
                         android:gravity="center"
                         android:digits="0123456789"
-                        android:imeOptions="actionDone"/>
+                        android:imeOptions="actionDone"
+                        android:textColor="@android:color/black"
+                        android:textColorHint="@android:color/black"/>
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
         </LinearLayout>

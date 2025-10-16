@@ -15,11 +15,13 @@ import androidx.fragment.app.Fragment;
 
 import com.example.recipeapp.R;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class RecipeDetailFragment extends Fragment {
     private Recipe recipe;
-
     private TextView tvTitle, tvCategory, tvIngredients, tvInstructions;
-    private Button btnEdit, btnDelete;
+    private Button btnEdit, btnDelete, btnCopy;
     private ImageView ivRecipeImage;
 
     /**
@@ -28,7 +30,7 @@ public class RecipeDetailFragment extends Fragment {
     public static RecipeDetailFragment newInstance(Recipe recipe) {
         RecipeDetailFragment fragment = new RecipeDetailFragment();
         Bundle args = new Bundle();
-        args.putSerializable("recipe", recipe); // có thể chuyển sang Parcelable sau
+        args.putSerializable("recipe", recipe);
         fragment.setArguments(args);
         return fragment;
     }
@@ -45,6 +47,7 @@ public class RecipeDetailFragment extends Fragment {
         tvIngredients = view.findViewById(R.id.tvIngredients);
         tvInstructions = view.findViewById(R.id.tvInstructions);
         btnEdit = view.findViewById(R.id.btnEdit);
+        btnCopy = view.findViewById(R.id.btnCopy);
         btnDelete = view.findViewById(R.id.btnDelete);
 
         loadRecipeFromArgs();
@@ -63,12 +66,19 @@ public class RecipeDetailFragment extends Fragment {
                     .commit();
         });
 
+        btnCopy.setOnClickListener(v -> {
+            if (recipe == null) {
+                Toast.makeText(requireContext(), "Recipe not found", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            copyRecipe();
+        });
+
         btnDelete.setOnClickListener(v -> {
             if (recipe == null || recipe.getId() == null || recipe.getId().isEmpty()) {
                 Toast.makeText(requireContext(), "Cannot delete: invalid recipe id", Toast.LENGTH_SHORT).show();
                 return;
             }
-            // ✅ API mới theo id
             RecipeDataManager.DeleteRecipeById(requireContext(), recipe.getId());
             // Quay lại danh sách; RecipeListFragment sẽ reload ở onResume()
             getParentFragmentManager().popBackStack();
@@ -96,5 +106,55 @@ public class RecipeDetailFragment extends Fragment {
         tvIngredients.setText(recipe.getIngredients());
         tvInstructions.setText(recipe.getInstructions());
         ivRecipeImage.setImageResource(recipe.getImage());
+    }
+
+    private void copyRecipe() {
+        Recipe copyRecipe = new Recipe();
+
+        copyRecipe.setTitle(recipe.getTitle() + " (Copy)");
+        copyRecipe.setCategory(recipe.getCategory());
+        copyRecipe.setInstructions(recipe.getInstructions());
+        copyRecipe.setImage(recipe.getImage());
+        copyRecipe.setPinned(recipe.isPinned());
+
+        copyRecipe.setCalories(recipe.getCalories());
+        copyRecipe.setCarbs(recipe.getCarbs());
+        copyRecipe.setFat(recipe.getFat());
+        copyRecipe.setProtein(recipe.getProtein());
+
+        if (recipe.getItems() != null && !recipe.getItems().isEmpty()) {
+            List<Recipe.RecipeItem> copiedItems = new ArrayList<>();
+            for (Recipe.RecipeItem item : recipe.getItems()) {
+                Recipe.Ingredient originalIng = item.getIngredient();
+                Recipe.Ingredient copiedIng = new Recipe.Ingredient(null, originalIng != null ? originalIng.getName() : "");
+
+                if (originalIng != null && originalIng.getUnit() != null) {
+                    copiedIng.setUnit(originalIng.getUnit());
+                }
+
+                if (originalIng != null && originalIng.getTags() != null) {
+                    copiedIng.setTags(new ArrayList<>(originalIng.getTags()));
+                }
+
+                Recipe.RecipeItem copiedItem = new Recipe.RecipeItem(
+                        copiedIng,
+                        item.getQuantity()
+                );
+                copiedItems.add(copiedItem);
+            }
+            copyRecipe.setItems(copiedItems);
+        }
+
+        if (recipe.getIngredients() != null && !recipe.getIngredients().isEmpty()) {
+            copyRecipe.setIngredients(recipe.getIngredients());
+        }
+
+        copyRecipe.setId(null);
+        copyRecipe.setOwner(null);
+
+        RecipeDataManager.AddRecipe(requireContext(), copyRecipe);
+
+        Toast.makeText(requireContext(), "Recipe copied successfully", Toast.LENGTH_SHORT).show();
+        getParentFragmentManager().popBackStack();
     }
 }

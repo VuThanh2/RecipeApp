@@ -7,6 +7,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -28,7 +30,6 @@ public class RecipeListFragment extends Fragment {
     private RecipeAdapter adapterPinned, adapterUnpinned;
     private final List<Recipe> pinnedList = new ArrayList<>();
     private final List<Recipe> unpinnedList = new ArrayList<>();
-    private FloatingActionButton fab;
     private OnRecipeSelectedListener listener;
     private String dietMode = "normal";
     private String filterPolicy = "warn";
@@ -57,7 +58,7 @@ public class RecipeListFragment extends Fragment {
 
         rvPinned = view.findViewById(R.id.rvPinned);
         rvUnpinned = view.findViewById(R.id.rvUnpinned);
-        fab = view.findViewById(R.id.fab_add);
+        FloatingActionButton fab = view.findViewById(R.id.fab_add);
 
         // Vẫn dùng helper hiện có để đảm bảo file tồn tại
         RecipeDataManager.createJsonFileIfEmpty(requireContext());
@@ -327,6 +328,10 @@ public class RecipeListFragment extends Fragment {
                 pinSelected();
                 mode.finish();
                 return true;
+            } else if (item.getItemId() == R.id.action_copy) {
+                MultiSelectRecipeCopy();
+                mode.finish();
+                return true;
             }
             return false;
         }
@@ -399,5 +404,85 @@ public class RecipeListFragment extends Fragment {
         adapterPinned.silentExitMultiSelectMode();
         adapterUnpinned.silentExitMultiSelectMode();
         reloadData();
+    }
+
+    private void MultiSelectRecipeCopy() {
+        List<Recipe> toCopy = new ArrayList<>();
+        toCopy.addAll(adapterPinned.getSelectedRecipes());
+        toCopy.addAll(adapterUnpinned.getSelectedRecipes());
+
+        if (toCopy.isEmpty()) {
+            Toast.makeText(requireContext(), "No recipes selected", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        List<Recipe> copiedRecipes = new ArrayList<>();
+        for (Recipe original : toCopy) {
+            Recipe copy = createRecipeCopy(original);
+            copiedRecipes.add(copy);
+        }
+
+        for (Recipe copy : copiedRecipes) {
+            RecipeDataManager.AddRecipe(requireContext(), copy);
+        }
+
+        String message = copiedRecipes.size() == 1
+                ? "1 recipe copied"
+                : copiedRecipes.size() + " recipes copied";
+        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+
+        reloadData();
+        adapterPinned.silentExitMultiSelectMode();
+        adapterUnpinned.silentExitMultiSelectMode();
+    }
+
+    private Recipe createRecipeCopy(Recipe original) {
+        Recipe copy = new Recipe();
+
+        copy.setTitle(original.getTitle() + " (Copy)");
+        copy.setCategory(original.getCategory());
+        copy.setInstructions(original.getInstructions());
+        copy.setImage(original.getImage());
+        copy.setPinned(original.isPinned());
+
+        copy.setCalories(original.getCalories());
+        copy.setCarbs(original.getCarbs());
+        copy.setFat(original.getFat());
+        copy.setProtein(original.getProtein());
+
+        if (original.getItems() != null && !original.getItems().isEmpty()) {
+            List<Recipe.RecipeItem> copiedItems = new ArrayList<>();
+            for (Recipe.RecipeItem item : original.getItems()) {
+                Recipe.Ingredient originalIng = item.getIngredient();
+
+                Recipe.Ingredient copiedIng = new Recipe.Ingredient(
+                        null, // New ingredient will get new ID
+                        originalIng != null ? originalIng.getName() : ""
+                );
+
+                if (originalIng != null && originalIng.getUnit() != null) {
+                    copiedIng.setUnit(originalIng.getUnit());
+                }
+
+                if (originalIng != null && originalIng.getTags() != null) {
+                    copiedIng.setTags(new ArrayList<>(originalIng.getTags()));
+                }
+
+                Recipe.RecipeItem copiedItem = new Recipe.RecipeItem(
+                        copiedIng,
+                        item.getQuantity()
+                );
+                copiedItems.add(copiedItem);
+            }
+            copy.setItems(copiedItems);
+        }
+
+        if (original.getIngredients() != null && !original.getIngredients().isEmpty()) {
+            copy.setIngredients(original.getIngredients());
+        }
+
+        copy.setId(null);
+        copy.setOwner(null);
+        return copy;
     }
 }

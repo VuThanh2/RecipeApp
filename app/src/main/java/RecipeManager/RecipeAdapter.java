@@ -94,7 +94,6 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.ViewHolder
             }
         }
 
-        holder.itemView.setBackgroundColor(selectedPositions.contains(position) ? 0x3300FF00 : 0x00000000);
         View checkbox = holder.itemView.findViewById(R.id.checkbox);
         if (checkbox != null) {
             checkbox.setVisibility(multiSelectMode ? View.VISIBLE : View.GONE);

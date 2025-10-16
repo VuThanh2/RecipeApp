@@ -60,6 +60,14 @@
             android:text="Edit"/>
 
         <Button
+            android:id="@+id/btnCopy"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/green_primary"
+            android:layout_marginTop="8dp"
+            android:text="Copy"/>
+
+        <Button
             android:id="@+id/btnDelete"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

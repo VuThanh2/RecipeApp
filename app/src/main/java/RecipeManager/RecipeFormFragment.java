@@ -309,8 +309,13 @@ public class RecipeFormFragment extends Fragment {
             String nameIngredient = (recipeItem.getIngredient() != null && recipeItem.getIngredient().getName() != null)
                     ? recipeItem.getIngredient().getName() : "";
             String quantity = recipeItem.getQuantity() == null ? "" : recipeItem.getQuantity().trim();
+            String unit = (recipeItem.getIngredient() != null && recipeItem.getIngredient().getUnit() != null)
+                    ? recipeItem.getIngredient().getUnit().trim() : "";
             if (!nameIngredient.isEmpty()) stringBuilder.append(nameIngredient);
-            if (!quantity.isEmpty()) stringBuilder.append(" — ").append(quantity);
+            if (!quantity.isEmpty()) {
+                stringBuilder.append(" — ").append(quantity);
+                if (!unit.isEmpty()) stringBuilder.append(" ").append(unit);
+            }
             if (i < items.size() - 1) stringBuilder.append("\n");
         }
         return stringBuilder.toString();

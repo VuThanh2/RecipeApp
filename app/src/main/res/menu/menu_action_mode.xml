@@ -5,13 +5,17 @@
         android:id="@+id/action_pin"
         android:icon="@drawable/ic_pin"
         android:title="Pin"
-        app:showAsAction="ifRoom"
-        android:iconTint="@color/green_primary"/>
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/action_copy"
+        android:icon="@drawable/ic_copy"
+        android:title="Copy"
+        app:showAsAction="ifRoom"/>
 
     <item
         android:id="@+id/action_delete"
         android:icon="@drawable/ic_delete"
         android:title="Delete"
-        app:showAsAction="ifRoom"
-        android:iconTint="@color/green_primary"/>
+        app:showAsAction="ifRoom"/>
 </menu>
