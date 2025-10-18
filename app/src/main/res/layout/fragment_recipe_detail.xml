@@ -15,7 +15,7 @@
             android:layout_height="300dp"
             android:scaleType="centerCrop"
             android:adjustViewBounds="true"
-            android:src="@drawable/default_background" />
+            android:src="@drawable/image_default_background" />
 
         <TextView
             android:id="@+id/tvTitle"

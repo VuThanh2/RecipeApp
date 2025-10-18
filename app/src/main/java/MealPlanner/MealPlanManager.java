@@ -9,6 +9,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.Locale;
 import RecipeManager.Recipe;
+import RecipeManager.RecipeDataManager;
+
 public class MealPlanManager {
     private static final String FILE = "meal_plans.json";
     private static final String TMP = "meal_plans.json.tmp";
@@ -85,12 +87,6 @@ public class MealPlanManager {
         }
     }
 
-    // core
-
-    private static JSONObject ensureWeek(JSONObject root, String weekId) {
-        return root;
-    }
-
     private static JSONObject getWeekObj(Context context, String weekId, JSONArray weeks) throws JSONException {
         for (int i = 0; i < weeks.length(); i++) {
             JSONObject week = weeks.getJSONObject(i);
@@ -107,21 +103,72 @@ public class MealPlanManager {
         return week;
     }
 
+    /**
+     * Get day plan with automatic cleanup of deleted recipes
+     * FIXED: Now validates recipe existence and auto-removes orphaned entries
+     */
     public static List<Recipe> getDayPlan(Context ctx, String weekId, Day day) {
         JSONArray weeks = load(ctx);
         ArrayList<Recipe> list = new ArrayList<>();
+        ArrayList<String> validIds = new ArrayList<>();
+        boolean needsCleanup = false;
+
         try {
             JSONObject w = getWeekObj(ctx, weekId, weeks);
             JSONArray arr = w.getJSONObject("days").optJSONArray(day.name());
-            for (int i=0;i<arr.length();i++) {
+
+            for (int i = 0; i < arr.length(); i++) {
                 JSONObject o = arr.getJSONObject(i);
-                Recipe r = new Recipe();                    // dùng ctor rỗng
-                r.setId(o.optString("id", null));
-                r.setTitle(o.optString("title", ""));
-                list.add(r);
+                String recipeId = o.optString("id", null);
+
+                // Validate recipe still exists
+                Recipe fullRecipe = RecipeDataManager.GetRecipeById(ctx, recipeId);
+                if (fullRecipe != null) {
+                    // Recipe exists - create lightweight reference
+                    Recipe r = new Recipe();
+                    r.setId(fullRecipe.getId());
+                    r.setTitle(fullRecipe.getTitle());
+                    list.add(r);
+                    validIds.add(recipeId);
+                } else {
+                    // Recipe was deleted - mark for cleanup
+                    needsCleanup = true;
+                }
             }
+
+            // Auto-cleanup: remove deleted recipe references
+            if (needsCleanup) {
+                cleanupDay(ctx, weekId, day, validIds, weeks);
+            }
+
         } catch (Exception ignored) {}
         return list;
+    }
+
+    /**
+     * Clean up deleted recipe references from a specific day
+     */
+    private static void cleanupDay(Context ctx, String weekId, Day day, List<String> validIds, JSONArray weeks) {
+        try {
+            JSONObject w = getWeekObj(ctx, weekId, weeks);
+            JSONArray cleanArray = new JSONArray();
+
+            // Rebuild array with only valid recipes
+            for (String validId : validIds) {
+                Recipe recipe = RecipeDataManager.GetRecipeById(ctx, validId);
+                if (recipe != null) {
+                    JSONObject o = new JSONObject()
+                            .put("id", recipe.getId())
+                            .put("title", recipe.getTitle());
+                    cleanArray.put(o);
+                }
+            }
+
+            w.getJSONObject("days").put(day.name(), cleanArray);
+            save(ctx, weeks);
+        } catch (Exception e) {
+            // Silent fail - cleanup is best-effort
+        }
     }
 
     public static Map<Day, List<Recipe>> getWeek(Context ctx, String weekId) {
@@ -133,12 +180,24 @@ public class MealPlanManager {
     public static boolean addRecipe(Context ctx, String weekId, Day day, Recipe tag) {
         JSONArray weeks = load(ctx);
         try {
+            Recipe fullRecipe = RecipeDataManager.GetRecipeById(ctx, tag.getId());
+            if (fullRecipe == null) {
+                return false; // Recipe doesn't exist
+            }
+
             JSONObject w = getWeekObj(ctx, weekId, weeks);
             JSONArray arr = w.getJSONObject("days").getJSONArray(day.name());
+
             // no duplicate id per day
-            for (int i=0;i<arr.length();i++)
-                if (tag.getId().equals(arr.getJSONObject(i).optString("id"))) return false;
-            JSONObject o = new JSONObject().put("id", tag.getId()).put("title", tag.getTitle());
+            for (int i = 0; i < arr.length(); i++) {
+                if (tag.getId().equals(arr.getJSONObject(i).optString("id"))) {
+                    return false;
+                }
+            }
+
+            JSONObject o = new JSONObject()
+                    .put("id", fullRecipe.getId())
+                    .put("title", fullRecipe.getTitle());
             arr.put(o);
             save(ctx, weeks);
             return true;
@@ -161,5 +220,47 @@ public class MealPlanManager {
             if (removed) save(ctx, weeks);
             return removed;
         } catch (Exception e) { return false; }
+    }
+
+    /**
+     * Clean up all deleted recipe references across entire meal plan
+     * Call this after bulk recipe deletions
+     */
+    public static void cleanupDeletedRecipes(Context ctx) {
+        JSONArray weeks = load(ctx);
+        boolean modified = false;
+
+        try {
+            for (int w = 0; w < weeks.length(); w++) {
+                JSONObject week = weeks.getJSONObject(w);
+                JSONObject days = week.getJSONObject("days");
+
+                for (Day day : Day.values()) {
+                    JSONArray arr = days.optJSONArray(day.name());
+                    if (arr == null) continue;
+
+                    JSONArray cleanArray = new JSONArray();
+                    for (int i = 0; i < arr.length(); i++) {
+                        JSONObject o = arr.getJSONObject(i);
+                        String recipeId = o.optString("id", null);
+
+                        // Only keep recipes that still exist
+                        if (RecipeDataManager.GetRecipeById(ctx, recipeId) != null) {
+                            cleanArray.put(o);
+                        } else {
+                            modified = true;
+                        }
+                    }
+
+                    days.put(day.name(), cleanArray);
+                }
+            }
+
+            if (modified) {
+                save(ctx, weeks);
+            }
+        } catch (Exception e) {
+            // Silent fail - cleanup is best-effort
+        }
     }
 }

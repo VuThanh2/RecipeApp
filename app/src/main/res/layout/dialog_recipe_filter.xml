@@ -19,27 +19,32 @@
             android:id="@+id/cbBreakfast"
             android:text="Breakfast"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:buttonTint="@color/green_primary"/>
         <CheckBox
             android:id="@+id/cbLunch"
             android:text="Lunch"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:buttonTint="@color/green_primary"/>
         <CheckBox
             android:id="@+id/cbDinner"
             android:text="Dinner"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:buttonTint="@color/green_primary"/>
         <CheckBox
             android:id="@+id/cbDessert"
             android:text="Dessert"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:buttonTint="@color/green_primary"/>
         <CheckBox
             android:id="@+id/cbVegetarian"
             android:text="Vegetarian"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:buttonTint="@color/green_primary"/>
 
         <TextView
             android:text="Calories"

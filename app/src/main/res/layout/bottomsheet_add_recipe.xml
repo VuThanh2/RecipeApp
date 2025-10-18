@@ -1,16 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:padding="16dp"
-    android:layout_width="match_parent" android:layout_height="wrap_content"
-    android:background="@color/gray_lighter">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/gray_lighter"
+    android:padding="16dp">
 
-    <EditText
-        android:id="@+id/edSearch" android:layout_width="match_parent"
-        android:layout_height="wrap_content" android:hint="Search recipe"/>
+    <View
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="16dp"
+        android:background="@android:color/darker_gray"
+        android:alpha="0.5" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        app:boxBackgroundMode="outline"
+        app:boxCornerRadiusTopStart="8dp"
+        app:boxCornerRadiusTopEnd="8dp"
+        app:boxCornerRadiusBottomStart="8dp"
+        app:boxCornerRadiusBottomEnd="8dp"
+        app:boxStrokeColor="@color/black"
+        app:hintTextColor="@color/black">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edSearch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Search recipe"
+            android:inputType="text"
+            android:imeOptions="actionSearch"
+            android:singleLine="true"
+            android:textColor="@android:color/black"
+            android:textColorHint="@android:color/black"/>
+    </com.google.android.material.textfield.TextInputLayout>
 
     <ListView
         android:id="@+id/listRecipes"
         android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:dividerHeight="1dp" />
+        android:layout_height="400dp"
+        android:divider="@android:color/darker_gray"
+        android:dividerHeight="1dp"
+        android:scrollbars="vertical"
+        android:fadeScrollbars="false"
+        android:nestedScrollingEnabled="true" />
 </LinearLayout>

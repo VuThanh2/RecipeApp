@@ -38,6 +38,7 @@
                 android:layout_height="wrap_content"
                 android:hint="Title"
                 android:inputType="text"
+                android:imeOptions="actionDone"
                 android:textColor="@android:color/black"
                 android:textColorHint="@android:color/black"/>
         </com.google.android.material.textfield.TextInputLayout>
@@ -49,7 +50,7 @@
             android:layout_marginTop="12dp"
             android:scaleType="centerCrop"
             android:background="@android:color/darker_gray"
-            android:src="@drawable/default_background" />
+            android:src="@drawable/image_default_background" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"

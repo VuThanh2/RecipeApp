@@ -2,6 +2,8 @@ package MealPlanner;
 
 import androidx.appcompat.app.AlertDialog;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 import Login.UserDataManager;
@@ -9,6 +11,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -17,6 +20,7 @@ import android.widget.ListView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.example.recipeapp.R;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,8 +48,16 @@ public class AddRecipeBottomSheet extends BottomSheetDialogFragment {
         EditText search = v.findViewById(R.id.edSearch);
         ListView list   = v.findViewById(R.id.listRecipes);
 
+        list.setOnTouchListener((View view, MotionEvent event) -> {
+            view.getParent().requestDisallowInterceptTouchEvent(true);
+            return false;
+        });
+
         List<Recipe> data = RecipeDataManager.LoadAllRecipe(requireContext());
-        all.clear(); all.addAll(data);
+        all.clear();
+        all.addAll(data);
+
+        sortByPinned(all);
 
         resolveDietContext();
 
@@ -103,6 +115,9 @@ public class AddRecipeBottomSheet extends BottomSheetDialogFragment {
                 filtered.add(r);
             }
         }
+
+        sortByPinned(filtered);
+
         adapter.clear();
         adapter.addAll(toTitles(filtered));
         adapter.notifyDataSetChanged();
@@ -112,13 +127,30 @@ public class AddRecipeBottomSheet extends BottomSheetDialogFragment {
         ArrayList<String> titles = new ArrayList<>();
         for (Recipe r : list) {
             String base = r.getTitle() == null ? "(Untitled)" : r.getTitle();
+            String prefix = r.isPinned() ? "⭐ " : "";
             if ("warn".equalsIgnoreCase(filterPolicy) && !isAllowedRecipe(r, dietMode)) {
-                titles.add(base + "  ⚠");
+                titles.add(prefix + base + "  ⚠");
             } else {
-                titles.add(base);
+                titles.add(prefix + base);
             }
         }
         return titles;
+    }
+
+    private void sortByPinned(List<Recipe> list) {
+        Collections.sort(list, new Comparator<Recipe>() {
+            @Override
+            public int compare(Recipe r1, Recipe r2) {
+                // Pinned recipes come first
+                if (r1.isPinned() && !r2.isPinned()) return -1;
+                if (!r1.isPinned() && r2.isPinned()) return 1;
+
+                // If both pinned or both unpinned, sort alphabetically by title
+                String title1 = r1.getTitle() == null ? "" : r1.getTitle();
+                String title2 = r2.getTitle() == null ? "" : r2.getTitle();
+                return title1.compareToIgnoreCase(title2);
+            }
+        });
     }
 
     private void resolveDietContext() {

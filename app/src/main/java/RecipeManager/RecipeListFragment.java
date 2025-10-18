@@ -283,6 +283,7 @@ public class RecipeListFragment extends Fragment {
             if (r.isPinned()) pinnedList.add(r);
             else unpinnedList.add(r);
         }
+        applyDietContextToAdapters();
 
         adapterPinned.notifyDataSetChanged();
         adapterUnpinned.notifyDataSetChanged();
@@ -365,6 +366,8 @@ public class RecipeListFragment extends Fragment {
         }
 
         RecipeDataManager.saveAll(requireContext(), all);
+
+        MealPlanner.MealPlanManager.cleanupDeletedRecipes(requireContext());
 
         reloadData();
 

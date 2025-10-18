@@ -91,6 +91,7 @@ public class RecipeDetailFragment extends Fragment {
                         Toast.makeText(requireContext(), "Cannot delete: invalid recipe id", Toast.LENGTH_SHORT).show();
                     } else {
                         RecipeDataManager.DeleteRecipeById(requireContext(), recipe.getId());
+                        MealPlanner.MealPlanManager.cleanupDeletedRecipes(requireContext());
                         // Quay lại danh sách; RecipeListFragment sẽ reload ở onResume()
                         getParentFragmentManager().popBackStack();
                     }

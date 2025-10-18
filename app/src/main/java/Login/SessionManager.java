@@ -12,9 +12,7 @@ public final class SessionManager {
 
     public static void setCurrentUsername(Context ctx, String username) {
         SharedPreferences sp = ctx.getSharedPreferences(PREF, Context.MODE_PRIVATE);
-        sp.edit()
-                .putString(KEY_USERNAME, username == null ? "" : username.trim().toLowerCase())
-                .apply();
+        sp.edit().putString(KEY_USERNAME, username == null ? "" : username.trim().toLowerCase()).apply();
     }
 
     public static String getCurrentUsername(Context ctx) {

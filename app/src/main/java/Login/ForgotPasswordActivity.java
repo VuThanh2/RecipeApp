@@ -33,10 +33,6 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         errorColor = ContextCompat.getColor(this, R.color.red_light);
 
         resetPasswordButton.setOnClickListener(v -> ValidateAndResetPassword());
-
-        ResetWhenTypingAgain(usernameLayout, usernameInput);
-        ResetWhenTypingAgain(newPasswordLayout, newPasswordInput);
-        ResetWhenTypingAgain(confirmPasswordLayout, confirmPasswordInput);
     }
 
     private void ValidateAndResetPassword() {
@@ -90,14 +86,5 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         newPasswordLayout.setError(null);
         confirmPasswordLayout.setBoxStrokeColor(normalColor);
         confirmPasswordLayout.setError(null);
-    }
-
-    private void ResetWhenTypingAgain(TextInputLayout layout, TextInputEditText input) {
-        input.setOnFocusChangeListener((v, hasFocus) -> {
-            if (hasFocus) {
-                layout.setBoxStrokeColor(normalColor);
-                layout.setError(null);
-            }
-        });
     }
 }

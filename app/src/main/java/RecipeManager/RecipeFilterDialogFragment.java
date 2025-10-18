@@ -1,6 +1,7 @@
 package RecipeManager;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -27,14 +28,24 @@ public class RecipeFilterDialogFragment extends DialogFragment {
     private OnFilterAppliedListener listener;
     private RecipeFilterItem currentFilter;
 
-    public static RecipeFilterDialogFragment newInstance(RecipeFilterItem filter, OnFilterAppliedListener listener) {
+    public static RecipeFilterDialogFragment newInstance(RecipeFilterItem filter) {
         RecipeFilterDialogFragment fragment = new RecipeFilterDialogFragment();
         Bundle args = new Bundle();
         args.putSerializable(ARG_FILTER, filter != null ? filter : new RecipeFilterItem());
         fragment.setArguments(args);
-        fragment.listener = listener;
         return fragment;
     }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if (getParentFragment() instanceof OnFilterAppliedListener) {
+            listener = (OnFilterAppliedListener) getParentFragment();
+        } else if (context instanceof OnFilterAppliedListener) {
+            listener = (OnFilterAppliedListener) context;
+        }
+    }
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {

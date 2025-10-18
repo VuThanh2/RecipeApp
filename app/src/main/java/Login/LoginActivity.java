@@ -49,16 +49,19 @@ public class LoginActivity extends AppCompatActivity {
         registerLink.setTextColor(accentColor);
         forgotPasswordLink.setTextColor(accentColor);
 
-        ResetWhenTypingAgain(usernameLayout, usernameInput);
-        ResetWhenTypingAgain(passwordLayout, passwordInput);
-
         loginButton.setOnClickListener(v -> ValidateLogin());
 
-        registerLink.setOnClickListener(v ->
-                startActivity(new Intent(LoginActivity.this, RegisterActivity.class)));
+        registerLink.setOnClickListener(v -> {
+                    startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
+                    usernameInput.setText("");
+                    passwordInput.setText("");
+        });
 
-        forgotPasswordLink.setOnClickListener(v ->
-                startActivity(new Intent(LoginActivity.this, ForgotPasswordActivity.class)));
+        forgotPasswordLink.setOnClickListener(v -> {
+            startActivity(new Intent(LoginActivity.this, ForgotPasswordActivity.class));
+            usernameInput.setText("");
+            passwordInput.setText("");
+        });
     }
 
     private void ValidateLogin() {
@@ -76,16 +79,33 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
+        // Check if account is locked out
+        if (UserDataManager.isAccountLockedOut(this, username)) {
+            long remainingSeconds = UserDataManager.getRemainingLockoutTime(this, username);
+            String lockoutMessage = formatLockoutTime(remainingSeconds);
+            Toast.makeText(this, lockoutMessage, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Check rate limiting
+        if (UserDataManager.isLoginRateLimited(this, username)) {
+            Toast.makeText(this, "Too fast! Please wait a moment", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         if (UserDataManager.validateLogin(this, username, password)) {
             Toast.makeText(this, "Login successful!", Toast.LENGTH_SHORT).show();
             SessionManager.setCurrentUsername(this, username);
             SessionManager.setLoggedIn(this, true);
+
             Intent intent = new Intent(LoginActivity.this, RecipeManagerActivity.class);
             intent.putExtra("username", username);
             startActivity(intent);
             finish();
         } else {
             showError(passwordLayout, passwordInput, "Invalid username or password");
+
+            passwordInput.setText("");
         }
     }
 
@@ -102,14 +122,14 @@ public class LoginActivity extends AppCompatActivity {
         passwordLayout.setError(null);
     }
 
-    private void ResetWhenTypingAgain(TextInputLayout layout, TextInputEditText editText) {
-        editText.setOnFocusChangeListener((v, hasFocus) -> {
-            if (hasFocus) {
-                layout.setBoxStrokeColor(normalColor);
-                layout.setError(null);
-            }
-        });
+    private String formatLockoutTime(long totalSeconds) {
+        long minutes = totalSeconds / 60;
+        long seconds = totalSeconds % 60;
+
+        if (minutes > 0) {
+            return String.format("Locked for %d mins %d secs", minutes, seconds);
+        } else {
+            return String.format("Locked for %d secs", seconds);
+        }
     }
-
-
 }

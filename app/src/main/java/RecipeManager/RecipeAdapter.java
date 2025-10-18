@@ -67,7 +67,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.ViewHolder
         if (recipe.getImage() != 0) {
             holder.ivRecipeImage.setImageResource(recipe.getImage());
         } else {
-            holder.ivRecipeImage.setImageResource(R.drawable.default_background);
+            holder.ivRecipeImage.setImageResource(R.drawable.image_default_background);
         }
 
         // Part E: apply diet policy purely inside adapter

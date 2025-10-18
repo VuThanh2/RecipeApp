@@ -11,7 +11,7 @@
         android:id="@+id/imageAvatar"
         android:layout_width="120dp"
         android:layout_height="120dp"
-        android:src="@drawable/default_avatar"
+        android:src="@drawable/image_default_avatar"
         android:layout_marginBottom="16dp"
         android:contentDescription="User Avatar" />
 

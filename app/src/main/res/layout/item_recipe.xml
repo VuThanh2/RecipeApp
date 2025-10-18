@@ -9,8 +9,7 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/card_border">
+        android:layout_height="wrap_content">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -23,15 +22,14 @@
                 android:layout_height="120dp"
                 android:scaleType="centerCrop"
                 android:adjustViewBounds="true"
-                android:src="@drawable/default_background"
+                android:src="@drawable/image_default_background"
                 android:contentDescription="Recipe image"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="8dp"
-                android:background="@color/gray_background">
+                android:padding="8dp">
 
                 <TextView
                     android:id="@+id/tvItemTitle"

@@ -4,26 +4,27 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
-
 import com.example.recipeapp.R;
 import com.google.android.material.navigation.NavigationView;
-
 import java.util.Objects;
-
 import Login.LoginActivity;
 import Login.SessionManager;
 import Login.UserProfileActivity;
 import MealPlanner.WeeklyPlannerActivity;
 
-public class RecipeManagerActivity extends AppCompatActivity implements RecipeListFragment.OnRecipeSelectedListener {
+public class RecipeManagerActivity extends AppCompatActivity
+        implements RecipeListFragment.OnRecipeSelectedListener,
+        RecipeFilterDialogFragment.OnFilterAppliedListener {
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private Toolbar toolbar;
@@ -32,12 +33,20 @@ public class RecipeManagerActivity extends AppCompatActivity implements RecipeLi
     private EditText etSearch;
     private RecipeListFragment recipeListFragment;
     private ImageView filterIcon;
+    private static final String KEY_LAST_FILTER = "key_last_filter";
     private RecipeFilterItem lastFilter = new RecipeFilterItem();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recipe_manager);
+
+        if (savedInstanceState != null) {
+            lastFilter = (RecipeFilterItem) savedInstanceState.getSerializable(KEY_LAST_FILTER);
+            if (lastFilter == null) {
+                lastFilter = new RecipeFilterItem();
+            }
+        }
 
         currentUsername = getIntent().getStringExtra("username");
 
@@ -54,12 +63,7 @@ public class RecipeManagerActivity extends AppCompatActivity implements RecipeLi
         filterIcon = findViewById(R.id.ivFilterIcon);
 
         filterIcon.setOnClickListener(v -> {
-            RecipeFilterDialogFragment dialog = RecipeFilterDialogFragment.newInstance(lastFilter, filterItem -> {
-                        lastFilter = filterItem;
-                        if (recipeListFragment != null) {
-                            recipeListFragment.applyFilter(filterItem);
-                        }
-                    });
+            RecipeFilterDialogFragment dialog = RecipeFilterDialogFragment.newInstance(lastFilter);
             dialog.show(getSupportFragmentManager(), "filterDialog");
         });
 
@@ -96,7 +100,7 @@ public class RecipeManagerActivity extends AppCompatActivity implements RecipeLi
             recipeListFragment = new RecipeListFragment();
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, recipeListFragment)
-                    .commit();
+                    .commitNow();
         } else {
             recipeListFragment = (RecipeListFragment)
                     getSupportFragmentManager().findFragmentById(R.id.fragment_container);
@@ -127,6 +131,12 @@ public class RecipeManagerActivity extends AppCompatActivity implements RecipeLi
                 .commit();
     }
 
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putSerializable(KEY_LAST_FILTER, lastFilter);
+    }
+
     private void PassDataToActivity(Class<?> destinationActivity, int flagType) {
         Intent intent = new Intent(this, destinationActivity);
         intent.putExtra("username", currentUsername);
@@ -147,6 +157,17 @@ public class RecipeManagerActivity extends AppCompatActivity implements RecipeLi
 
         if (flagType == 2 || flagType == 4) {
             finish();
+        }
+    }
+
+    @Override
+    public void onFilterApplied(RecipeFilterItem filterItem) {
+        lastFilter = filterItem;
+        if (recipeListFragment != null) {
+            Log.d("RecipeManagerActivity", "Applying filter: " + filterItem.toString());
+            recipeListFragment.applyFilter(filterItem);
+        } else {
+            Log.e("RecipeManagerActivity", "recipeListFragment is null when applying filter");
         }
     }
 }

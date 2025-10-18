@@ -1,5 +1,6 @@
 package RecipeManager;
 
+import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import Login.UserDataManager;
@@ -8,6 +9,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -26,6 +28,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 public class RecipeFormFragment extends Fragment {
@@ -35,7 +38,7 @@ public class RecipeFormFragment extends Fragment {
     private ChipGroup chipGroupItems;
     private ImageView ivRecipeImage, btnPin;
     private Recipe recipe;
-    private int selectedImage = R.drawable.default_background;
+    private int selectedImage = R.drawable.image_default_background;
     private boolean isPinned = false;
     private String currentDietMode = "normal";
     private int normalColor, errorColor;
@@ -162,16 +165,16 @@ public class RecipeFormFragment extends Fragment {
         btnSave.setOnClickListener(v -> {
             Recipe toSave = (recipe != null) ? recipe : new Recipe();
 
-            toSave.setTitle(etTitle.getText().toString());
+            toSave.setTitle(Objects.requireNonNull(etTitle.getText()).toString());
             toSave.setCategory(actvCategory.getText().toString());
-            toSave.setInstructions(etInstructions.getText().toString());
+            toSave.setInstructions(Objects.requireNonNull(etInstructions.getText()).toString());
             toSave.setImage(selectedImage);
             toSave.setPinned(isPinned);
 
-            int calories = etCalories.getText().toString().isEmpty() ? 0 : Integer.parseInt(etCalories.getText().toString());
-            int carbs = etCarbs.getText().toString().isEmpty() ? 0 : Integer.parseInt(etCarbs.getText().toString());
-            int fat = etFat.getText().toString().isEmpty() ? 0 : Integer.parseInt(etFat.getText().toString());
-            int protein = etProtein.getText().toString().isEmpty() ? 0 : Integer.parseInt(etProtein.getText().toString());
+            int calories = Objects.requireNonNull(etCalories.getText()).toString().isEmpty() ? 0 : Integer.parseInt(etCalories.getText().toString());
+            int carbs = Objects.requireNonNull(etCarbs.getText()).toString().isEmpty() ? 0 : Integer.parseInt(etCarbs.getText().toString());
+            int fat = Objects.requireNonNull(etFat.getText()).toString().isEmpty() ? 0 : Integer.parseInt(etFat.getText().toString());
+            int protein = Objects.requireNonNull(etProtein.getText()).toString().isEmpty() ? 0 : Integer.parseInt(etProtein.getText().toString());
 
             toSave.setCalories(calories);
             toSave.setCarbs(carbs);
@@ -249,6 +252,10 @@ public class RecipeFormFragment extends Fragment {
                 .setNegativeButton("Cancel", (d, w) -> {
                     // default to pcs if user cancels
                     addCurrentChip(name, qty, "pcs");
+                })
+                .setOnDismissListener(dialog -> {
+                    // Ensure keyboard stays hidden after dialog dismisses
+                    hideKeyboard();
                 })
                 .show();
     }
@@ -373,12 +380,28 @@ public class RecipeFormFragment extends Fragment {
 
     private void showImageSelectionDialog() {
         final int[] imageResIds = {
-                R.drawable.pho,
-                R.drawable.steak,
-                R.drawable.salad,
+                R.drawable.image_pho,
+                R.drawable.image_steak,
+                R.drawable.image_salad,
+                R.drawable.image_banh_mi,
+                R.drawable.image_bun_bo,
+                R.drawable.image_bun_rieu,
+                R.drawable.image_com_tam,
+                R.drawable.image_bun_cha,
+                R.drawable.image_lasagna,
+                R.drawable.image_pasta,
+                R.drawable.image_spaghetti,
+                R.drawable.image_ramen,
+                R.drawable.image_pizza,
+                R.drawable.image_sushi,
+                R.drawable.image_cake,
+                R.drawable.image_candy,
+                R.drawable.image_donut,
+                R.drawable.image_croissant
         };
 
-        String[] imageNames = {"Pho", "Steak", "Salad"};
+        String[] imageNames = {"Pho", "Steak", "Salad", "Banh Mi", "Bun Bo", "Bun Rieu", "Com Tam", "Bun Cha",
+                "Lasagna", "Pasta", "Spaghetti", "Ramen", "Pizza", "Sushi", "Cake", "Candy", "Donut", "Croissant"};
 
         new AlertDialog.Builder(getContext())
                 .setTitle("Select an image")
@@ -418,6 +441,16 @@ public class RecipeFormFragment extends Fragment {
                         }
                     }
                 }
+            }
+        }
+    }
+
+    private void hideKeyboard() {
+        View view = requireActivity().getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
             }
         }
     }
