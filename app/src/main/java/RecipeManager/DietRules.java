@@ -28,24 +28,4 @@ public final class DietRules {
         for (String t: tags) if (forbidden.contains(t)) return false;
         return true;
     }
-
-    public static boolean recipeAllowed(Recipe r, String diet) {
-        if (r == null || r.getItems() == null) return true;
-        for (Recipe.RecipeItem it: r.getItems()) {
-            if (!isAllowed(it.getIngredient(), diet)) return false;
-        }
-        return true;
-    }
-
-    public static String recipeViolationSummary(Recipe r, String diet) {
-        if (r == null || r.getItems() == null) return "";
-        var forbidden = forbiddenFor(diet);
-        var hit = new LinkedHashSet<String>();
-        for (Recipe.RecipeItem it: r.getItems()) {
-            var tags = it.getIngredient() != null ? it.getIngredient().getTags() : null;
-            if (tags == null) continue;
-            for (String t: tags) if (forbidden.contains(t)) hit.add(t);
-        }
-        return String.join(", ", hit); // e.g. "meat, dairy"
-    }
 }

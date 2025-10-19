@@ -43,18 +43,6 @@ public class WeeklyAdapter extends RecyclerView.Adapter<WeeklyAdapter.DayVH> {
         return user.trim().toLowerCase() + "::" + id;
     }
 
-    public void setDietMode(String diet) {
-        if (diet == null) return;
-        this.dietMode = diet.trim().toLowerCase();
-        notifyDataSetChanged();
-    }
-
-    public void setFilterPolicy(String policy) {
-        if (policy == null) return;
-        this.filterPolicy = "hide".equalsIgnoreCase(policy) ? "hide" : "warn";
-        notifyDataSetChanged();
-    }
-
     public WeeklyAdapter(Context ctx, String weekId, Listener listener) {
         this.ctx = ctx; this.listener = listener;
         this.weekId = normalizeWeekId(weekId);
