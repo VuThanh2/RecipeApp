@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import RecipeManager.Recipe;
 import RecipeManager.RecipeDataManager;
+import Login.SessionManager;
 
 public class AddRecipeBottomSheet extends BottomSheetDialogFragment {
     public interface OnPick { void onPicked(Recipe recipe); }
@@ -154,12 +155,13 @@ public class AddRecipeBottomSheet extends BottomSheetDialogFragment {
     }
 
     private void resolveDietContext() {
-        String username = null;
+        String username = SessionManager.getCurrentUsername(requireContext());
+        String pol = null;
         if (getActivity() != null && getActivity().getIntent() != null) {
-            username = getActivity().getIntent().getStringExtra("username");
-            String pol = getActivity().getIntent().getStringExtra("dietPolicy");
-            if (pol != null) filterPolicy = "hide".equalsIgnoreCase(pol) ? "hide" : "warn";
+            pol = getActivity().getIntent().getStringExtra("dietPolicy");
         }
+        if (pol != null) filterPolicy = "hide".equalsIgnoreCase(pol) ? "hide" : "warn";
+
         try {
             dietMode = UserDataManager.getDietMode(requireContext(), username == null ? "" : username);
             if (dietMode == null || dietMode.isEmpty()) dietMode = "normal";

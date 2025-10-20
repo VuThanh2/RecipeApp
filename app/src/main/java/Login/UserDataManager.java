@@ -193,11 +193,18 @@ public class UserDataManager {
     }
 
     public static String getDietMode(Context context, String username) {
+        if (username == null || username.trim().isEmpty()) {
+            return MODE_NORMAL;
+        }
+
         JSONArray users = loadUsers(context);
         for (int i = 0; i < users.length(); i++) {
             try {
                 JSONObject user = users.getJSONObject(i);
-                if (username.equals(user.optString(KEY_USERNAME))) {
+                String storedUsername = user.optString(KEY_USERNAME);
+
+                // Case-insensitive comparison to match SessionManager behavior
+                if (username.trim().equalsIgnoreCase(storedUsername)) {
                     String d = user.optString(KEY_DIET_MODE, null);
                     if (!isValidDietMode(d)) {
                         d = MapDietMode(user.optString(KEY_DIET_MODE, ""));
@@ -215,11 +222,18 @@ public class UserDataManager {
     }
 
     public static boolean updateDietMode(Context context, String username, String dietMode) {
+        if (username == null || username.trim().isEmpty()) {
+            return false;
+        }
+
         JSONArray users = loadUsers(context);
         for (int i = 0; i < users.length(); i++) {
             try {
                 JSONObject user = users.getJSONObject(i);
-                if (username.equals(user.optString(KEY_USERNAME))) {
+                String storedUsername = user.optString(KEY_USERNAME);
+
+                // Case-insensitive comparison to match SessionManager behavior
+                if (username.trim().equalsIgnoreCase(storedUsername)) {
                     String normalized = sanitizeDietMode(dietMode);
                     user.put(KEY_DIET_MODE, normalized);
                     saveUsers(context, users);

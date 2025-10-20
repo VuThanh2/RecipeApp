@@ -454,4 +454,44 @@ public class RecipeFormFragment extends Fragment {
             }
         }
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // Reload diet mode every time fragment becomes visible
+        // This ensures changes from UserProfileActivity are reflected
+        loadCurrentDietMode();
+    }
+
+    private void loadCurrentDietMode() {
+        String usernameArg = requireActivity().getIntent() != null
+                ? requireActivity().getIntent().getStringExtra("username") : null;
+
+        // If no username in intent, try to get from SessionManager
+        if (usernameArg == null || usernameArg.isEmpty()) {
+            usernameArg = Login.SessionManager.getCurrentUsername(requireContext());
+        }
+
+        String newDietMode = UserDataManager.getDietMode(requireContext(),
+                usernameArg == null ? "" : usernameArg);
+
+        // Only refresh chips if diet mode actually changed
+        if (!newDietMode.equals(currentDietMode)) {
+            currentDietMode = newDietMode;
+            refreshChipAppearances();
+        }
+    }
+
+    private void refreshChipAppearances() {
+        if (chipGroupItems == null || stagedItems.isEmpty()) return;
+
+        // Remove all existing chips
+        chipGroupItems.removeAllViews();
+
+        // Re-add all chips with updated diet mode rules
+        for (Recipe.RecipeItem item : stagedItems) {
+            addChipFromItem(item);
+        }
+    }
 }

@@ -37,8 +37,6 @@ public class UserProfileActivity extends AppCompatActivity {
             dietInput.setOnFocusChangeListener((v, hasFocus) -> {
                 if (hasFocus) dietInput.showDropDown();
             });
-            // Default selection
-            dietInput.setText(dietLabels[0], false);
         }
 
         currentUsername = SessionManager.getCurrentUsername(this);
@@ -50,6 +48,9 @@ public class UserProfileActivity extends AppCompatActivity {
             return;
         }
         textUsername.setText(currentUsername);
+
+        loadAndDisplayDietMode();
+
 
         String currentDiet = UserDataManager.getDietMode(this, currentUsername);
         String display = mapDietValueToLabel(currentDiet);
@@ -73,6 +74,25 @@ public class UserProfileActivity extends AppCompatActivity {
         });
 
         imageAvatar.setImageResource(R.drawable.image_default_avatar);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Reload diet mode when returning to this activity
+        loadAndDisplayDietMode();
+    }
+
+    private void loadAndDisplayDietMode() {
+        if (currentUsername == null || currentUsername.isEmpty()) return;
+
+        String currentDiet = UserDataManager.getDietMode(this, currentUsername);
+        String display = mapDietValueToLabel(currentDiet);
+
+        // Set the text without triggering the dropdown
+        if (dietInput != null) {
+            dietInput.setText(display, false);
+        }
     }
 
     private String mapDietValueToLabel(String value) {
