@@ -12,8 +12,10 @@
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_gravity="center_horizontal"
-        android:src="@drawable/image_default_avatar"
-        android:layout_marginBottom="16dp" />
+        android:src="@drawable/app_logo"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/rounded_image_background"
+        android:clipToOutline="true" />
 
     <TextView
         android:id="@+id/txtLoginLabel"
